@@ -161,6 +161,63 @@ const LISTA_JUINJUTSUS = {
     'TENJ': { nome: '𝗧𝗲𝗻 𝗻𝗼 𝗝𝘂𝗶𝗻', info: "𓏺 +𝟯𝟱 𝖼𝗁𝖺𝗄𝗋𝖺 𝗉𝗈𝗂𝗇𝗍'𝗌." }
 };
 
+// Dicionário de Características
+const LISTA_CARACTERISTICAS = {
+    'VELO': {
+        nome: '𝗩𝗲𝗹𝗼𝗰𝗶𝗱𝗮𝗱𝗲 𝗘𝘅𝗼𝗿𝗯𝗶𝘁𝗮𝗻𝘁𝗲',
+        info: `característica responsável por transformar o 𝘀𝗵𝗶𝗻𝗼𝗯𝗶 em uma exceção ao abordar o parâmetro.
+
+٬ Requer 𝘁𝗮𝗶𝗷𝘂𝘁𝘀𝘂 nível 𝟬𝟱. Indisponível para quem possui clã.`
+    },
+    'FORC': {
+        nome: '𝗙𝗼𝗿𝗰̧𝗮 𝗘𝘅𝗼𝗿𝗯𝗶𝘁𝗮𝗻𝘁𝗲',
+        info: `característica responsável por transformar o 𝘀𝗵𝗶𝗻𝗼𝗯𝗶 em uma exceção ao abordar o parâmetro.
+
+٬ Requer 𝘁𝗮𝗶𝗷𝘂𝘁𝘀𝘂 nível 𝟬𝟱. Indisponível para quem possui clã.`
+    },
+    'RESI': {
+        nome: '𝗥𝗲𝘀𝗶𝘀𝘁𝗲̂𝗻𝗰𝗶𝗮 𝗘𝘅𝗼𝗿𝗯𝗶𝘁𝗮𝗻𝘁𝗲',
+        info: `característica responsável por transformar o 𝘀𝗵𝗶𝗻𝗼𝗯𝗶 em uma exceção ao abordar o parâmetro.
+
+٬ Requer 𝘁𝗮𝗶𝗷𝘂𝘁𝘀𝘂 nível 𝟬𝟱. Indisponível para quem possui clã.`
+    },
+    'REAC': {
+        nome: '𝗥𝗲𝗮𝗰̧𝗮̃𝗼 𝗘𝘅𝘁𝗿𝗮𝘃𝗮𝗴𝗮𝗻𝘁𝗲',
+        info: `característica inspirada em 𝗠𝗶𝗻𝗮𝘁𝗼. Usá-lo como base para suas ações.`
+    },
+    'TASP': {
+        nome: '𝗧𝗮𝗻𝘀𝗮𝗸𝘂𝗷𝘂𝘁𝘀𝘂 𝗽𝗮𝘀𝘀𝗶𝘃𝗼',
+        info: `permite usar 𝘁𝗮𝗻𝘀𝗮𝗸𝘂𝗷𝘂𝘁𝘀𝘂 na ausência de 𝘀𝗲𝗹𝗼 𝗺𝗮𝗻𝘂𝗮𝗹.
+
+٬ Requer 𝘁𝗮𝗻𝘀𝗮𝗸𝘂𝗷𝘂𝘁𝘀𝘂 nível 𝟬𝟱.`
+    },
+    'DUMA': {
+        nome: '𝗗𝘂𝗽𝗹𝗮 𝗠𝗮𝗲𝘀𝘁𝗿𝗶𝗮',
+        info: `característica que viabiliza a obtenção de uma 𝗺𝗮𝗲𝘀𝘁𝗿𝗶𝗮 secundária.`
+    },
+    'CCHA': {
+        nome: '𝗖𝗼𝗻𝘁𝗿𝗼𝗹𝗲 𝗱𝗲 𝗖𝗵𝗮𝗸𝗿𝗮',
+        info: `inspirada em 𝗜𝘁𝗮𝗰𝗵𝗶, reduz o gasto de 𝗰𝗵𝗮𝗸𝗿𝗮 para realizar técnicas.
+
+٬ 𝗖𝗵𝗮𝗸𝗿𝗮 𝗚𝗮𝘀𝘁𝗼: 𝗗: 𝟢𝟣, 𝗖: 𝟢𝟤, 𝗕: 𝟢𝟥, 𝗔: 𝟢𝟧, 𝗦: 𝟣𝟢.
+٬ Requer 𝗻𝗶𝗻𝗷𝘂𝘁𝘀𝘂 nível 𝟬𝟱.`
+    },
+    'QELE': {
+        nome: '𝗤𝘂𝗮𝗿𝘁𝗼 𝗘𝗹𝗲𝗺𝗲𝗻𝘁𝗼',
+        info: `característica que viabiliza um 𝗲𝗹𝗲𝗺𝗲𝗻𝘁𝗼 adicional para o personagem.`
+    },
+    'CHMO': {
+        nome: '𝗖𝗵𝗮𝗸𝗿𝗮 𝗠𝗼𝗻𝘀𝘁𝗿𝘂𝗼𝘀𝗼',
+        info: `inspirada em 𝗠𝗮𝗱𝗮𝗿𝗮, amplia o potencial e alcance das técnicas do usuário.`
+    },
+    'REDE': {
+        nome: '𝗥𝗲𝘀𝗲𝗿𝘃𝗮 𝗗𝗲𝘀𝗰𝗼𝗺𝘂𝗻𝗮𝗹',
+        info: `expande consideravelmente as reservas de 𝗰𝗵𝗮𝗸𝗿𝗮 do usuário.
+
+٬ +𝟳𝟱 𝖼𝗁𝖺𝗄𝗋𝖺 𝗉𝗈𝗂𝗇𝗍'𝗌.`
+    }
+};
+
 // Dicionário de Kinjutsus
 // OBS: troquei Shiki Fūjin de SHIK para SHIF porque SHIK já é usado por Shikkotsumyaku em Kekkei Genkai.
 const LISTA_KINJUTSUS = {
@@ -191,6 +248,7 @@ function getNomeVaga(codigo) {
     if (LISTA_UNICAS[codigo]) return LISTA_UNICAS[codigo];
     if (LISTA_TRACOS[codigo]) return LISTA_TRACOS[codigo];
     if (LISTA_JUINJUTSUS[codigo]) return LISTA_JUINJUTSUS[codigo].nome;
+    if (LISTA_CARACTERISTICAS[codigo]) return LISTA_CARACTERISTICAS[codigo].nome;
     if (LISTA_KINJUTSUS[codigo]) return LISTA_KINJUTSUS[codigo].nome.toLowerCase();
     return codigo;
 }
@@ -206,13 +264,14 @@ function identificarTipo(codigo) {
         isUnica: !!LISTA_UNICAS[codigo],
         isTraco: !!LISTA_TRACOS[codigo],
         isJuinjutsu: !!LISTA_JUINJUTSUS[codigo],
+        isCaracteristica: !!LISTA_CARACTERISTICAS[codigo],
         isKinjutsu: !!LISTA_KINJUTSUS[codigo]
     };
 }
 
 function codigoExiste(codigo) {
     const tipo = identificarTipo(codigo);
-    return tipo.isArte || tipo.isArma || tipo.isHabilidade || tipo.isBiju || tipo.isKekkei || tipo.isProdigio || tipo.isUnica || tipo.isTraco || tipo.isJuinjutsu || tipo.isKinjutsu;
+    return tipo.isArte || tipo.isArma || tipo.isHabilidade || tipo.isBiju || tipo.isKekkei || tipo.isProdigio || tipo.isUnica || tipo.isTraco || tipo.isJuinjutsu || tipo.isCaracteristica || tipo.isKinjutsu;
 }
 
 function getLimiteSlots(codigo) {
@@ -331,6 +390,21 @@ function puxarSlotsKekkei(codigo) {
     return `• \`[ CÓDIGO: ${codigo} ]\`\n٬ ${kekkei.nome}.\n𓏺 ${slots.join(', ')}.`;
 }
 
+function puxarSlotsCaracteristica(codigo) {
+    const caracteristica = LISTA_CARACTERISTICAS[codigo];
+    const db = lerDB();
+    const ocupantes = db.vagas[codigo] || [];
+    const nomesPadrao = ['𝗎𝗆', '𝖽𝗈𝗂𝗌', '𝗍𝗋𝖾̂𝗌'];
+    const slots = [];
+
+    for (let i = 0; i < 3; i++) {
+        slots.push(ocupantes[i] ? `<@${ocupantes[i]}>` : nomesPadrao[i]);
+    }
+
+    return `𓏺 \`[ CÓDIGO: ${codigo} ]\` ${caracteristica.nome}, ${caracteristica.info}
+٬ ${slots.join(', ')}.`;
+}
+
 function puxarSlotExclusivo(codigo, nomeVaga, info = '') {
     const db = lerDB();
     const ocupantes = db.vagas[codigo] || [];
@@ -350,7 +424,7 @@ function membroEhAdmin(member) {
 function construirPainelVagas(pagina) {
     const embed = new EmbedBuilder().setColor('#2b2d31');
     const botaoVoltar = new ButtonBuilder().setCustomId('voltar').setLabel('⬅️ Anterior').setStyle(ButtonStyle.Secondary).setDisabled(pagina === 1);
-    const botaoProximo = new ButtonBuilder().setCustomId('proximo').setLabel('Próxima ➡️').setStyle(ButtonStyle.Primary).setDisabled(pagina === 11);
+    const botaoProximo = new ButtonBuilder().setCustomId('proximo').setLabel('Próxima ➡️').setStyle(ButtonStyle.Primary).setDisabled(pagina === 12);
 
     if (pagina === 1) {
         embed.setTitle('📜 Listagem — 【 ARTES EXÓTICAS 】').setDescription(Object.keys(LISTA_ARTES).map(cod => `• \`[ CÓDIGO: ${cod} ]\`\n` + puxarSlots(cod, LISTA_ARTES[cod])).join('\n\n'));
@@ -373,7 +447,7 @@ function construirPainelVagas(pagina) {
     else if (pagina === 6) {
         embed
             .setTitle('📜 Listagem — 【 TRAÇOS 】')
-            .setDescription('*Atenção: Os traços abaixo são exclusivos. Sua obtenção é feita por sorteio.*\n\n' + Object.keys(LISTA_TRACOS).map(cod => puxarSlotExclusivo(cod, LISTA_TRACOS[cod])).join('\n\n'));
+            .setDescription('*Inviável a obtenção destas vagas através da pretensão.*\n\n' + Object.keys(LISTA_TRACOS).map(cod => puxarSlotExclusivo(cod, LISTA_TRACOS[cod])).join('\n\n'));
     }
     else if (pagina === 7) {
         embed.setTitle('📜 Listagem — 【 PRODÍGIOS 】').setDescription(Object.keys(LISTA_PRODIGIOS).map(cod => {
@@ -393,10 +467,16 @@ function construirPainelVagas(pagina) {
     else if (pagina === 11) {
         embed
             .setTitle('📜 Listagem — 【 JUINJUTSUS 】')
-            .setDescription('* Os juinjutsus são exclusivos. Sua obtenção é atraves do Shirohebi.*\n\n' + Object.keys(LISTA_JUINJUTSUS).map(cod => puxarSlotExclusivo(cod, LISTA_JUINJUTSUS[cod].nome, LISTA_JUINJUTSUS[cod].info)).join('\n\n'));
+            .setDescription('*Inviável a obtenção destas vagas através da pretensão.*\n\n' + Object.keys(LISTA_JUINJUTSUS).map(cod => puxarSlotExclusivo(cod, LISTA_JUINJUTSUS[cod].nome, LISTA_JUINJUTSUS[cod].info)).join('\n\n'));
     }
 
-    embed.setFooter({ text: `Página ${pagina}/11` });
+    else if (pagina === 12) {
+        embed
+            .setTitle('📜 Listagem — 【 CARACTERÍSTICAS 】')
+            .setDescription(Object.keys(LISTA_CARACTERISTICAS).map(cod => puxarSlotsCaracteristica(cod)).join('\n\n'));
+    }
+
+    embed.setFooter({ text: `Página ${pagina}/12` });
 
     const menu = new StringSelectMenuBuilder().setCustomId('menu_vagas_nav').setPlaceholder('Saltar para categoria...')
         .addOptions(
@@ -410,7 +490,8 @@ function construirPainelVagas(pagina) {
             { label: '8. Bijus', value: '8' },
             { label: '9. Kekkei Genkai', value: '9' },
             { label: '10. Kinjutsus', value: '10' },
-            { label: '11. Juinjutsus', value: '11' }
+            { label: '11. Juinjutsus', value: '11' },
+            { label: '12. Características', value: '12' }
         );
 
     return {
