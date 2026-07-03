@@ -33,11 +33,21 @@ const commands = [
         .addStringOption(option => option.setName('codigo').setDescription('Código da vaga (Ex: KUSA, SAMEHA)').setRequired(true)),
 
     new SlashCommandBuilder()
+        .setName('bloquearvaga')
+        .setDescription('🔴 [Staff] Bloqueia uma vaga para pretensão comum.')
+        .addStringOption(option => option.setName('codigo').setDescription('Código da vaga que será bloqueada').setRequired(true)),
+
+    new SlashCommandBuilder()
+        .setName('desbloquearvaga')
+        .setDescription('✅ [Staff] Desbloqueia uma vaga bloqueada.')
+        .addStringOption(option => option.setName('codigo').setDescription('Código da vaga que será desbloqueada').setRequired(true)),
+
+    new SlashCommandBuilder()
         .setName('limparvagas')
         .setDescription('🧹 [Staff] Libera todas as vagas registradas no banco.'),
 ].map(command => command.toJSON());
 
-const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN || process.env.TOKEN);
 
 (async () => {
     try {

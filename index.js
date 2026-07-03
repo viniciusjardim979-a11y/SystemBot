@@ -338,8 +338,24 @@ if (!fs.existsSync(ARQUIVO_DB)) {
     fs.writeFileSync(ARQUIVO_DB, JSON.stringify({ usuarios: {}, vagas: {}, agendaPretensao: {} }, null, 4));
 }
 
-function lerDB() { return JSON.parse(fs.readFileSync(ARQUIVO_DB, 'utf-8')); }
+function lerDB() {
+    const dados = JSON.parse(fs.readFileSync(ARQUIVO_DB, 'utf-8'));
+    if (!dados.usuarios) dados.usuarios = {};
+    if (!dados.vagas) dados.vagas = {};
+    if (!dados.agendaPretensao) dados.agendaPretensao = {};
+    if (!dados.vagasBloqueadas) dados.vagasBloqueadas = {};
+    return dados;
+}
 function salvarDB(dados) { fs.writeFileSync(ARQUIVO_DB, JSON.stringify(dados, null, 4)); }
+
+function isVagaBloqueada(codigo, db = null) {
+    const dados = db || lerDB();
+    return !!dados.vagasBloqueadas?.[codigo];
+}
+
+function codigoLabel(codigo) {
+    return `\`[ CÓDIGO: ${codigo} ]\`${isVagaBloqueada(codigo) ? ' 🔴 `BLOQUEADA`' : ''}`;
+}
 
 function puxarSlots(codigo, nomeVaga) {
     const db = lerDB();
@@ -371,14 +387,14 @@ function puxarSlotsArma(codigo) {
     const arma = LISTA_ARMAS[codigo];
     const db = lerDB();
     const ocupantes = db.vagas[codigo] || [];
-    return `٬ ${arma.nome}  \`[ CÓDIGO: ${codigo} ]\`\n${arma.info}\n𓏺 Vaga: ${ocupantes[0] ? `<@${ocupantes[0]}>` : 'disponível'}.`;
+    return `٬ ${arma.nome}  ${codigoLabel(codigo)}\n${arma.info}\n𓏺 Vaga: ${ocupantes[0] ? `<@${ocupantes[0]}>` : 'disponível'}.`;
 }
 
 function puxarSlotsBiju(codigo) {
     const biju = LISTA_BIJUS[codigo];
     const db = lerDB();
     const ocupantes = db.vagas[codigo] || [];
-    return `٬ ${biju}  \`[ CÓDIGO: ${codigo} ]\`\n𓏺 Hospedeiro: ${ocupantes[0] ? `<@${ocupantes[0]}>` : 'disponível'}.`;
+    return `٬ ${biju}  ${codigoLabel(codigo)}\n𓏺 Hospedeiro: ${ocupantes[0] ? `<@${ocupantes[0]}>` : 'disponível'}.`;
 }
 
 function puxarSlotsKinjutsu(codigo) {
@@ -391,7 +407,7 @@ function puxarSlotsKinjutsu(codigo) {
         slots.push(ocupantes[i] ? `<@${ocupantes[i]}>` : 'vago');
     }
 
-    return `• \`[ CÓDIGO: ${codigo} ]\`\n٬ ${kin.nome.toLowerCase()} · ${slots.join(' & ')}.\n${kin.info}`;
+    return `• ${codigoLabel(codigo)}\n٬ ${kin.nome.toLowerCase()} · ${slots.join(' & ')}.\n${kin.info}`;
 }
 
 function puxarSlotsKekkei(codigo) {
@@ -423,7 +439,7 @@ function puxarSlotsKekkei(codigo) {
             ? ocupantes.map(id => `<@${id}>`).join(', ')
             : 'ilimitado';
 
-        return `• \`[ CÓDIGO: ${codigo} ]\`\n٬ ${kekkei.nome}.\n𓏺 ${lista}.`;
+        return `• ${codigoLabel(codigo)}\n٬ ${kekkei.nome}.\n𓏺 ${lista}.`;
     }
 
     const slots = [];
@@ -433,7 +449,7 @@ function puxarSlotsKekkei(codigo) {
         slots.push(ocupantes[i] ? `<@${ocupantes[i]}>` : (padrao[i] || 'vaga'));
     }
 
-    return `• \`[ CÓDIGO: ${codigo} ]\`\n٬ ${kekkei.nome}.\n𓏺 ${slots.join(', ')}.`;
+    return `• ${codigoLabel(codigo)}\n٬ ${kekkei.nome}.\n𓏺 ${slots.join(', ')}.`;
 }
 
 function puxarSlotsCaracteristica(codigo) {
@@ -447,7 +463,7 @@ function puxarSlotsCaracteristica(codigo) {
         slots.push(ocupantes[i] ? `<@${ocupantes[i]}>` : nomesPadrao[i]);
     }
 
-    return `𓏺 \`[ CÓDIGO: ${codigo} ]\` ${caracteristica.nome}, ${caracteristica.info}
+    return `𓏺 ${codigoLabel(codigo)} ${caracteristica.nome}, ${caracteristica.info}
 ٬ ${slots.join(', ')}.`;
 }
 
@@ -456,7 +472,7 @@ function puxarSlotExclusivo(codigo, nomeVaga, info = '') {
     const ocupantes = db.vagas[codigo] || [];
     const linhaInfo = info ? `\n${info}` : '';
 
-    return `▬ \`[ CÓDIGO: ${codigo} ]\` ${nomeVaga}.\n𓏺 ${ocupantes[0] ? `<@${ocupantes[0]}>` : '𝗏𝖺𝗀𝖺 𝖾𝗑𝖼𝗅𝗎𝗌𝗂𝗏𝖺'}.${linhaInfo}`;
+    return `▬ ${codigoLabel(codigo)} ${nomeVaga}.\n𓏺 ${ocupantes[0] ? `<@${ocupantes[0]}>` : '𝗏𝖺𝗀𝖺 𝖾𝗑𝖼𝗅𝗎𝗌𝗂𝗏𝖺'}.${linhaInfo}`;
 }
 
 function isCodigoApenasAdm(codigo) {
@@ -481,7 +497,7 @@ function puxarSlotsInvocacao(codigo) {
             assinantes.push(ocupantes[i] ? `<@${ocupantes[i]}>` : nomes[i - 1]);
         }
 
-        return `▬ \`[ CÓDIGO: ${codigo} ]\` ${invocacao.nome}.\n𓏺 ${invocacao.info}\n٬ Dono: ${dono}.\n٬ Assinantes: ${assinantes.join(', ')}.`;
+        return `▬ ${codigoLabel(codigo)} ${invocacao.nome}.\n𓏺 ${invocacao.info}\n٬ Dono: ${dono}.\n٬ Assinantes: ${assinantes.join(', ')}.`;
     }
 
     const nomesPadrao = invocacao.max === 4
@@ -493,7 +509,7 @@ function puxarSlotsInvocacao(codigo) {
         slots.push(ocupantes[i] ? `<@${ocupantes[i]}>` : (nomesPadrao[i] || 'vaga'));
     }
 
-    return `▬ \`[ CÓDIGO: ${codigo} ]\` ${invocacao.nome}.\n↳ ${invocacao.info}\n٬ ${slots.join(', ')}.`;
+    return `▬ ${codigoLabel(codigo)} ${invocacao.nome}.\n↳ ${invocacao.info}\n٬ ${slots.join(', ')}.`;
 }
 
 function puxarSlotModoSabio(codigo) {
@@ -501,7 +517,7 @@ function puxarSlotModoSabio(codigo) {
     const db = lerDB();
     const ocupantes = db.vagas[codigo] || [];
 
-    return `٬ \`[ CÓDIGO: ${codigo} ]\` ${modo.nome}.\n${modo.info}\n٬ ${ocupantes[0] ? `<@${ocupantes[0]}>` : '𝘃𝗮𝗴𝗮 𝗲𝘅𝗰𝗹𝘂𝘀𝗶𝘃𝗮'}.`;
+    return `٬ ${codigoLabel(codigo)} ${modo.nome}.\n${modo.info}\n٬ ${ocupantes[0] ? `<@${ocupantes[0]}>` : '𝘃𝗮𝗴𝗮 𝗲𝘅𝗰𝗹𝘂𝘀𝗶𝘃𝗮'}.`;
 }
 
 function construirPainelVagas(pagina) {
@@ -510,10 +526,10 @@ function construirPainelVagas(pagina) {
     const botaoProximo = new ButtonBuilder().setCustomId('proximo').setLabel('Próxima ➡️').setStyle(ButtonStyle.Primary).setDisabled(pagina === 14);
 
     if (pagina === 1) {
-        embed.setTitle('📜 Listagem — 【 ARTES EXÓTICAS 】').setDescription(Object.keys(LISTA_ARTES).map(cod => `• \`[ CÓDIGO: ${cod} ]\`\n` + puxarSlots(cod, LISTA_ARTES[cod])).join('\n\n'));
+        embed.setTitle('📜 Listagem — 【 ARTES EXÓTICAS 】').setDescription(Object.keys(LISTA_ARTES).map(cod => `• ${codigoLabel(cod)}\n` + puxarSlots(cod, LISTA_ARTES[cod])).join('\n\n'));
     }
     else if (pagina === 2) {
-        embed.setTitle('📜 Listagem — 【 HABILIDADES EXÓTICAS 】').setDescription(Object.keys(LISTA_HABILIDADES).map(cod => `• \`[ CÓDIGO: ${cod} ]\`\n` + puxarSlots(cod, LISTA_HABILIDADES[cod])).join('\n\n'));
+        embed.setTitle('📜 Listagem — 【 HABILIDADES EXÓTICAS 】').setDescription(Object.keys(LISTA_HABILIDADES).map(cod => `• ${codigoLabel(cod)}\n` + puxarSlots(cod, LISTA_HABILIDADES[cod])).join('\n\n'));
     }
     else if (pagina === 3) {
         embed.setTitle('📜 Listagem — Castelo 【 ARMAS EXÓTICAS 】').setDescription(['SENSU', 'SHOKEN', 'HINOKEN', 'GUNBAI', 'OGAMA', 'GARIAN', 'CHAKTO', 'YOROI', 'RAIJIN', 'ZANBATO', 'KOKUTO', 'SOSHUG', 'KYOMEI', 'MATEKI', 'KUSATS', 'KUSANA', 'KUROSA'].map(cod => puxarSlotsArma(cod)).join('\n\n'));
@@ -524,7 +540,7 @@ function construirPainelVagas(pagina) {
     else if (pagina === 5) {
         embed.setTitle('📜 Listagem — 【 HABILIDADES ÚNICAS 】').setDescription(Object.keys(LISTA_UNICAS).map(cod => {
             const maxSlots = cod === 'SSOS' ? 3 : 1;
-            return `• \`[ CÓDIGO: ${cod} ]\`\n${puxarSlotsEspeciais(cod, LISTA_UNICAS[cod], maxSlots)}`;
+            return `• ${codigoLabel(cod)}\n${puxarSlotsEspeciais(cod, LISTA_UNICAS[cod], maxSlots)}`;
         }).join('\n\n'));
     }
     else if (pagina === 6) {
@@ -535,7 +551,7 @@ function construirPainelVagas(pagina) {
     else if (pagina === 7) {
         embed.setTitle('📜 Listagem — 【 PRODÍGIOS 】').setDescription(Object.keys(LISTA_PRODIGIOS).map(cod => {
             const maxSlots = cod === 'PGEN' ? 1 : 5;
-            return `• \`[ CÓDIGO: ${cod} ]\`\n${puxarSlotsEspeciais(cod, LISTA_PRODIGIOS[cod], maxSlots)}`;
+            return `• ${codigoLabel(cod)}\n${puxarSlotsEspeciais(cod, LISTA_PRODIGIOS[cod], maxSlots)}`;
         }).join('\n\n'));
     }
     else if (pagina === 8) {
@@ -658,6 +674,11 @@ client.on('messageCreate', async (message) => {
             message.delete().catch(() => {});
             return message.channel.send(`🚫 <@${message.author.id}>, essa vaga é exclusiva e só pode ser atribuída por ADM.`).then(msg => setTimeout(() => msg.delete().catch(() => {}), 5000));
         }
+
+        if (isVagaBloqueada(codigo, db) && !membroEhAdmin(message.member)) {
+            message.delete().catch(() => {});
+            return message.channel.send(`🚫 <@${message.author.id}>, a vaga **${nomeExibicao}** está bloqueada no momento.`).then(msg => setTimeout(() => msg.delete().catch(() => {}), 5000));
+        }
         
         if (!db.vagas[codigo]) db.vagas[codigo] = [];
         if (!db.usuarios[message.author.id]) db.usuarios[message.author.id] = [];
@@ -720,6 +741,54 @@ client.on('interactionCreate', async (interaction) => {
                 '• `/setarpretensao` — Programa e tranca o canal de pretensão até a data escolhida.');
 
         return interaction.reply({ embeds: [embedTools] });
+    }
+
+    if (commandName === 'bloquearvaga') {
+        if (!interaction.memberPermissions || !interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
+            return interaction.reply({ content: '❌ Você não tem permissão de Administrador para usar este comando.', ephemeral: true });
+        }
+
+        const codigo = interaction.options.getString('codigo').toUpperCase();
+        if (!codigoExiste(codigo)) {
+            return interaction.reply({ content: '❌ Esse código de vaga não existe!', ephemeral: true });
+        }
+
+        const db = lerDB();
+        if (!db.vagasBloqueadas) db.vagasBloqueadas = {};
+
+        if (db.vagasBloqueadas[codigo]) {
+            return interaction.reply({ content: `⚠️ A vaga **${getNomeVaga(codigo)}** já está bloqueada.`, ephemeral: true });
+        }
+
+        db.vagasBloqueadas[codigo] = true;
+        salvarDB(db);
+        await atualizarPaineisVagas();
+
+        return interaction.reply({ content: `🔴 Vaga **${getNomeVaga(codigo)}** bloqueada com sucesso. ADM ainda pode atribuir/usar essa vaga.` });
+    }
+
+    if (commandName === 'desbloquearvaga') {
+        if (!interaction.memberPermissions || !interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
+            return interaction.reply({ content: '❌ Você não tem permissão de Administrador para usar este comando.', ephemeral: true });
+        }
+
+        const codigo = interaction.options.getString('codigo').toUpperCase();
+        if (!codigoExiste(codigo)) {
+            return interaction.reply({ content: '❌ Esse código de vaga não existe!', ephemeral: true });
+        }
+
+        const db = lerDB();
+        if (!db.vagasBloqueadas) db.vagasBloqueadas = {};
+
+        if (!db.vagasBloqueadas[codigo]) {
+            return interaction.reply({ content: `⚠️ A vaga **${getNomeVaga(codigo)}** não está bloqueada.`, ephemeral: true });
+        }
+
+        delete db.vagasBloqueadas[codigo];
+        salvarDB(db);
+        await atualizarPaineisVagas();
+
+        return interaction.reply({ content: `✅ Vaga **${getNomeVaga(codigo)}** desbloqueada com sucesso.` });
     }
 
     if (commandName === 'limparvagas') {
