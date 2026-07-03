@@ -470,7 +470,7 @@ client.on('interactionCreate', async (interaction) => {
         function construirPainel(pagina) {
             const embed = new EmbedBuilder().setColor('#2b2d31');
             const botaoVoltar = new ButtonBuilder().setCustomId('voltar').setLabel('⬅️ Anterior').setStyle(ButtonStyle.Secondary).setDisabled(pagina === 1);
-            const botaoProximo = new ButtonBuilder().setCustomId('proximo').setLabel('Próxima ➡️').setStyle(ButtonStyle.Primary).setDisabled(pagina === 11);
+            const botaoProximo = new ButtonBuilder().setCustomId('proximo').setLabel('Próxima ➡️').setStyle(ButtonStyle.Primary).setDisabled(pagina === 10);
 
             if (pagina === 1) {
                 embed.setTitle('📜 Listagem — 【 ARTES EXÓTICAS 】').setDescription(Object.keys(LISTA_ARTES).map(cod => `• \`[ CÓDIGO: ${cod} ]\`\n` + puxarSlots(cod, LISTA_ARTES[cod])).join('\n\n'));
@@ -529,11 +529,8 @@ client.on('interactionCreate', async (interaction) => {
             else if (pagina === 10) {
                 embed.setTitle('📜 Listagem — 【 KINJUTSUS 】').setDescription(Object.keys(LISTA_KINJUTSUS).map(cod => puxarSlotsKinjutsu(cod)).join('\n\n'));
             }
-            else if (pagina === 11) {
-                embed.setTitle('📜 Listagem — 【 CATEGORIA EXTRA 】').setDescription('*Espaço livre reservado para a inclusão de novas vagas, clãs ou informações adicionais.*');
-            }
 
-            embed.setFooter({ text: `Página ${pagina}/11` });
+            embed.setFooter({ text: `Página ${pagina}/10` });
             const menu = new StringSelectMenuBuilder().setCustomId('menu_vagas_nav').setPlaceholder('Saltar para categoria...')
                 .addOptions(
                     { label: '1. Artes Exóticas', value: '1' },
@@ -545,8 +542,7 @@ client.on('interactionCreate', async (interaction) => {
                     { label: '7. Prodígios', value: '7' },
                     { label: '8. Bijus', value: '8' },
                     { label: '9. Kekkei Genkai', value: '9' },
-                    { label: '10. Kinjutsus', value: '10' },
-                    { label: '11. Categoria Extra', value: '11' }
+                    { label: '10. Kinjutsus', value: '10' }
                 );
 
             return { embeds: [embed], components: [new ActionRowBuilder().addComponents(botaoVoltar, botaoProximo), new ActionRowBuilder().addComponents(menu)] };
