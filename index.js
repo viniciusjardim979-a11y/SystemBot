@@ -218,6 +218,26 @@ const LISTA_CARACTERISTICAS = {
     }
 };
 
+// Dicionário de Invocações
+const LISTA_INVOCACOES = {
+    'MONT': { nome: 'Monte', max: 5, tipo: 'contrato', info: 'Gamabunta, Gamaken e Gamahiro — sem contratante. Gasto proporcional a 85 CP. Afiliação com Konohagakure.' },
+    'KATS': { nome: 'Shikkotsurin', max: 5, tipo: 'contrato', info: 'Katsuyu — sem contratante. Gasto proporcional a 85 CP. Afiliação com Konohagakure.' },
+    'YUCH': { nome: 'Caverna Yuchido', max: 5, tipo: 'contrato', info: 'Manda, Garaga e Aoda — sem contratante. Gasto proporcional a 85 CP.' },
+    'NKEN': { nome: 'Ninken', max: 1, tipo: 'exclusiva', info: 'Cães ninja. Apenas clã Hatake; livre acesso após graduação como chūnin.' },
+    'NNEK': { nome: 'Ninneko', max: 4, tipo: 'normal4', info: 'Gatos ninja. Sem restrição de clã ou aldeia; Nekomata equivale a porte médio.' },
+    'ENMA': { nome: 'Enkō: Enma', max: 1, tipo: 'exclusiva', info: 'Invocação de médio porte. Apenas clã Sarutobi, taichō. Chūnin do clã invoca Enra.' },
+    'NKAM': { nome: 'Ninkame', max: 1, tipo: 'exclusiva', info: 'Invocação de médio porte. Apenas especialistas em taijutsu. Afiliação com Konohagakure.' },
+    'OHAM': { nome: 'Ōhamaguri', max: 1, tipo: 'exclusiva', info: 'Invocação de grande porte. Afiliação com Kirigakure. Apenas um taichō pode invocar.' },
+    'KARA': { nome: 'Karasu', max: 4, tipo: 'normal4', info: 'Corvos. Sem restrição de aldeia ou clã; gasto proporcional por enxurrada ou corvo individual.' },
+    'IBUS': { nome: 'Ibuse', max: 1, tipo: 'exclusiva', info: 'Salamandra de grande porte. Requer Tokubetsu; inviável para habitantes de grandes potências.' },
+    'KAMA': { nome: 'Kamatari', max: 1, tipo: 'exclusiva', info: 'Invocação de médio porte. Afiliação com Sunagakure; chūnin. Livre para usuários do Kyōdai Sensu.' },
+    'BAKI': { nome: 'Baku', max: 1, tipo: 'exclusiva', info: 'Invocação de grande porte. Exclusiva do clã Shimura; requer graduação Tokubetsu.' },
+    'KGUM': { nome: 'Kyōdaigumo', max: 1, tipo: 'exclusiva', info: 'Aranha de grande porte. Exclusiva ao Kumo Nenkin; acesso ao graduar como chūnin.' },
+    'DOKI': { nome: 'Doki', max: 1, tipo: 'exclusiva', info: 'Invocações de médio porte. Exclusivo para usuário da Mateki; acesso como chūnin.' },
+    'RASH': { nome: 'Rashōmon', max: 4, tipo: 'normal4', info: 'Portões de grande porte. Requer graduação chūnin; válido para qualquer aldeia ou clã.' },
+    'TAKA': { nome: 'Taka', max: 4, tipo: 'normal4', info: 'Falcões. Tamanho varia conforme função; sem restrição de aldeia ou clã.' }
+};
+
 // Dicionário de Kinjutsus
 // OBS: troquei Shiki Fūjin de SHIK para SHIF porque SHIK já é usado por Shikkotsumyaku em Kekkei Genkai.
 const LISTA_KINJUTSUS = {
@@ -249,6 +269,7 @@ function getNomeVaga(codigo) {
     if (LISTA_TRACOS[codigo]) return LISTA_TRACOS[codigo];
     if (LISTA_JUINJUTSUS[codigo]) return LISTA_JUINJUTSUS[codigo].nome;
     if (LISTA_CARACTERISTICAS[codigo]) return LISTA_CARACTERISTICAS[codigo].nome;
+    if (LISTA_INVOCACOES[codigo]) return LISTA_INVOCACOES[codigo].nome;
     if (LISTA_KINJUTSUS[codigo]) return LISTA_KINJUTSUS[codigo].nome.toLowerCase();
     return codigo;
 }
@@ -265,13 +286,14 @@ function identificarTipo(codigo) {
         isTraco: !!LISTA_TRACOS[codigo],
         isJuinjutsu: !!LISTA_JUINJUTSUS[codigo],
         isCaracteristica: !!LISTA_CARACTERISTICAS[codigo],
+        isInvocacao: !!LISTA_INVOCACOES[codigo],
         isKinjutsu: !!LISTA_KINJUTSUS[codigo]
     };
 }
 
 function codigoExiste(codigo) {
     const tipo = identificarTipo(codigo);
-    return tipo.isArte || tipo.isArma || tipo.isHabilidade || tipo.isBiju || tipo.isKekkei || tipo.isProdigio || tipo.isUnica || tipo.isTraco || tipo.isJuinjutsu || tipo.isCaracteristica || tipo.isKinjutsu;
+    return tipo.isArte || tipo.isArma || tipo.isHabilidade || tipo.isBiju || tipo.isKekkei || tipo.isProdigio || tipo.isUnica || tipo.isTraco || tipo.isJuinjutsu || tipo.isCaracteristica || tipo.isInvocacao || tipo.isKinjutsu;
 }
 
 function getLimiteSlots(codigo) {
@@ -281,6 +303,7 @@ function getLimiteSlots(codigo) {
     if (tipo.isKekkei) return LISTA_KEKKEI[codigo].max;
     if (tipo.isProdigio && codigo !== 'PGEN') return 5;
     if (tipo.isKinjutsu) return LISTA_KINJUTSUS[codigo].max;
+    if (tipo.isInvocacao) return LISTA_INVOCACOES[codigo].max;
     return 3;
 }
 
@@ -421,10 +444,39 @@ function membroEhAdmin(member) {
     return !!member?.permissions?.has(PermissionFlagsBits.Administrator);
 }
 
+function puxarSlotsInvocacao(codigo) {
+    const invocacao = LISTA_INVOCACOES[codigo];
+    const db = lerDB();
+    const ocupantes = db.vagas[codigo] || [];
+
+    if (invocacao.tipo === 'contrato') {
+        const dono = ocupantes[0] ? `<@${ocupantes[0]}>` : 'dono de pergaminho';
+        const nomes = ['um', 'dois', 'três', 'quatro'];
+        const assinantes = [];
+
+        for (let i = 1; i < 5; i++) {
+            assinantes.push(ocupantes[i] ? `<@${ocupantes[i]}>` : nomes[i - 1]);
+        }
+
+        return `▬ \`[ CÓDIGO: ${codigo} ]\` ${invocacao.nome}.\n𓏺 ${invocacao.info}\n٬ Dono: ${dono}.\n٬ Assinantes: ${assinantes.join(', ')}.`;
+    }
+
+    const nomesPadrao = invocacao.max === 4
+        ? ['um', 'dois', 'três', 'quatro']
+        : ['vaga exclusiva'];
+    const slots = [];
+
+    for (let i = 0; i < invocacao.max; i++) {
+        slots.push(ocupantes[i] ? `<@${ocupantes[i]}>` : (nomesPadrao[i] || 'vaga'));
+    }
+
+    return `▬ \`[ CÓDIGO: ${codigo} ]\` ${invocacao.nome}.\n↳ ${invocacao.info}\n٬ ${slots.join(', ')}.`;
+}
+
 function construirPainelVagas(pagina) {
     const embed = new EmbedBuilder().setColor('#2b2d31');
     const botaoVoltar = new ButtonBuilder().setCustomId('voltar').setLabel('⬅️ Anterior').setStyle(ButtonStyle.Secondary).setDisabled(pagina === 1);
-    const botaoProximo = new ButtonBuilder().setCustomId('proximo').setLabel('Próxima ➡️').setStyle(ButtonStyle.Primary).setDisabled(pagina === 12);
+    const botaoProximo = new ButtonBuilder().setCustomId('proximo').setLabel('Próxima ➡️').setStyle(ButtonStyle.Primary).setDisabled(pagina === 13);
 
     if (pagina === 1) {
         embed.setTitle('📜 Listagem — 【 ARTES EXÓTICAS 】').setDescription(Object.keys(LISTA_ARTES).map(cod => `• \`[ CÓDIGO: ${cod} ]\`\n` + puxarSlots(cod, LISTA_ARTES[cod])).join('\n\n'));
@@ -476,7 +528,13 @@ function construirPainelVagas(pagina) {
             .setDescription(Object.keys(LISTA_CARACTERISTICAS).map(cod => puxarSlotsCaracteristica(cod)).join('\n\n'));
     }
 
-    embed.setFooter({ text: `Página ${pagina}/12` });
+    else if (pagina === 13) {
+        embed
+            .setTitle('📜 Listagem — 【 INVOCAÇÕES 】')
+            .setDescription(Object.keys(LISTA_INVOCACOES).map(cod => puxarSlotsInvocacao(cod)).join('\n\n'));
+    }
+
+    embed.setFooter({ text: `Página ${pagina}/13` });
 
     const menu = new StringSelectMenuBuilder().setCustomId('menu_vagas_nav').setPlaceholder('Saltar para categoria...')
         .addOptions(
@@ -491,7 +549,8 @@ function construirPainelVagas(pagina) {
             { label: '9. Kekkei Genkai', value: '9' },
             { label: '10. Kinjutsus', value: '10' },
             { label: '11. Juinjutsus', value: '11' },
-            { label: '12. Características', value: '12' }
+            { label: '12. Características', value: '12' },
+            { label: '13. Invocações', value: '13' }
         );
 
     return {
