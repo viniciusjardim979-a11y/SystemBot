@@ -39,7 +39,10 @@ const client = new Client({
 // ==========================================
 const CANAL_PRETENSAO_ID = '1515842705958113340'; 
 
-// Dicionários
+// Guarda os painéis /vagas que estão abertos para atualizar quando alguém pega/remove vaga.
+const paineisVagasAtivos = new Map();
+
+// Dicionário de Artes Exóticas
 const LISTA_ARTES = {
     'KUSA': 'Kusagakureryū', 'SAIR': 'Sairento Kiringu', 'IAID': 'Iaidō',
     'KONG': 'Kongoken', 'WHIR': 'Whirlwind', 'ENGE': 'Engeki',
@@ -49,6 +52,7 @@ const LISTA_ARTES = {
     'KAKU': 'Kakuran Taijutsu', 'HANA': 'Hana Ninpō', 'RAKA': 'Rakanken'
 };
 
+// Dicionário de Armas Exóticas
 const LISTA_ARMAS = {
     'SENSU': { nome: 'Kyōdai Sensu · Ilimitado', info: '· Restrição em **Sunagakure**.\n· Alcançar grau **2** in **Ninjutsu**.\n· Obtenção de variação **equilibrado** ou **arma única** in **Bukijutsu**.\n↳ **maestria fūton** contorna essa necessidade.' },
     'SHOKEN': { nome: 'Fujaku Hishō Shōken · NPC', info: '· Grau **2** em **Ninjutsu** (**maestria fūton** contorna).' },
@@ -81,6 +85,7 @@ const LISTA_ARMAS = {
     'SHICHI': { nome: 'Shichiseiken · NPC', info: '▬ Gasta **50 cp** todas as técnicas.' }
 };
 
+// Dicionário de Habilidades Exóticas
 const LISTA_HABILIDADES = {
     'SOSU': 'Doton: Soseijutsu', 'TOBO': 'Toboe no Onpa', 'SEPU': 'Fūton: Senpuken',
     'KEIM': 'Keima Henka', 'CKYU': 'Chakura Kyūinjutsu', 'RKIR': 'Raikiri',
@@ -93,12 +98,14 @@ const LISTA_HABILIDADES = {
     'HIRA': 'Hiraishin', 'GOGY': 'Gōgyō Kaiin, Gōgyō Fūin', 'CKAJ': 'Chōkajūgan, Chōkeijūgan'
 };
 
+// Dicionário de Bijus
 const LISTA_BIJUS = {
     'SHUK': 'Ichibi No Shukaku', 'MATA': 'Nibi No Matabi', 'ISOB': 'Sanbi No Isobu',
     'GOKU': 'Yonbi No Son Goku', 'KOKU': 'Gobi No Kokuo', 'SAIK': 'Rokubi No Saiken',
     'CHOM': 'Nanabi No Chomei', 'GYUK': 'Hachibi No Gyuki', 'KURA': 'Kyubi No Kurama'
 };
 
+// Dicionário de Kekkei Genkai
 const LISTA_KEKKEI = {
     'BAKU': { nome: 'Bakuton', max: 3 }, 'KOTO': { nome: 'Kōton', max: 3 }, 'JITO': { nome: 'Jiton', max: 3 },
     'SHAK': { nome: 'Shakuton', max: 3 }, 'SHIK': { nome: 'Shikkotsumyaku', max: Infinity }, 'TAIT': { nome: 'Taiton', max: 3 },
@@ -108,12 +115,14 @@ const LISTA_KEKKEI = {
     'YOTO': { nome: 'Yōton', max: 9 }, 'FUTT': { nome: 'Futton', max: 3 }, 'JINK': { nome: 'Jinton (Kamizuru/Sem Clã)', max: 2 }
 };
 
+// Dicionário de Prodígios
 const LISTA_PRODIGIOS = {
     'PKON': 'Prodígios de Konohagakure', 'PSUN': 'Prodígios de Sunagakure', 'PIWA': 'Prodígios de Iwagakure',
     'PKIR': 'Prodígios de Kirigakure', 'PKUM': 'Prodígios de Kumogakure', 'PVAR': 'Prodígios de Países Variadas',
     'PGEN': 'Prodígio da geração'
 };
 
+// Dicionário de Habilidades Únicas
 const LISTA_UNICAS = {
     'DUIT': 'Doton: 𝖴𝗂𝗍𝖾𝗇𝗉𝖾𝗇', 'CHARI': '𝖢𝗁𝖺𝗄𝗎𝗋𝖺 𝗇𝗈 𝖧𝖺𝗋𝗂', 'YBAI': '𝖸𝖺𝗇𝗀: 𝖡𝖺𝗂𝗄𝖺',
     'KSEI': '𝖪𝗈𝗆𝗈𝗋𝗂 𝖲𝖾𝗂𝖼𝗁𝗎̄', 'SSOS': '𝖲𝖾𝗇𝗇𝗈 𝖲𝗈̄𝗌𝖺', 'MAKU': '𝖬𝖾𝗂𝗌𝖺𝗂a𝗄𝗎𝗋𝖾',
@@ -123,6 +132,8 @@ const LISTA_UNICAS = {
     'KSIN': '𝖪𝖺gura Shingan', 'ATOR': '𝖠𝗋𝖺𝗍𝖺𝗄𝖾𝗍𝗈̄𝗌𝗁𝗂', 'NSUI': '𝖭𝖾𝗇𝗌𝗎𝗂𝗄𝖺𝗂'
 };
 
+// Dicionário de Kinjutsus
+// OBS: troquei Shiki Fūjin de SHIK para SHIF porque SHIK já é usado por Shikkotsumyaku em Kekkei Genkai.
 const LISTA_KINJUTSUS = {
     'KIBN': { nome: 'Kibaku Nendo', info: '· Classificada por **destruição em massa**.\n· Obtenção **com exigência**.\n· Furto do pergaminho no **gabinete do tsuchi**.', max: 1 },
     'TAJU': { nome: 'Tajū Kage Bunshin', info: '· Classificada por **auto-destrutiva**.\n· Obtenção **com exigência**.\n· Furto do pergaminho no **gabinete do hokage**.', max: 1 },
@@ -132,7 +143,7 @@ const LISTA_KINJUTSUS = {
     'BYAK': { nome: 'Byakugō no In', info: '· Classificada por **anti-natural**.\n· Obtenção **sem exigência**.\n· Vaga primária será o **criador** da técnica.\n· Vaga secundária obtida a partir do **criador**.', max: 2 },
     'AKUT': { nome: 'Akuta', info: '· Classificada por **anti-natural**.\n· Obtenção **sem exigência**.', max: 1 },
     'KISH': { nome: 'Kishō Tensei', info: '· Classificada por **anti-natural**.\n· Obtenção **sem exigência**.', max: 1 },
-    'SHIK': { nome: 'Shiki Fūjin', info: '· Classificada por **anti-natural**.\n· Obtenção **sem exigência**.\n· Requer conhecimento sobre **fuinjutsu uzumaki**.', max: 1 },
+    'SHIF': { nome: 'Shiki Fūjin', info: '· Classificada por **anti-natural**.\n· Obtenção **sem exigência**.\n· Requer conhecimento sobre **fuinjutsu uzumaki**.', max: 1 },
     'RSHU': { nome: 'Rasenshuriken', info: '· Classificada por **auto-destrutiva**.\n· Obtenção **sem exigência**.\n· Requer **rasengan**.', max: 1 },
     'IZAG': { nome: 'Izanagi', info: '· Classificada por **anti-natural**.\n· Obtenção **com exigência**.\n· Requer **sharingan**.\n· Bloqueada até **segunda ordem**.', max: 2 },
     'IZAM': { nome: 'Izanami', info: '· Classificada por **auto-destrutiva**.\n· Obtenção **com exigência**.\n· Requer **sharingan**.\n· Bloqueada até **segunda ordem**.', max: 2 }
@@ -153,126 +164,509 @@ function getNomeVaga(codigo) {
     return codigo;
 }
 
+function identificarTipo(codigo) {
+    return {
+        isArte: !!LISTA_ARTES[codigo],
+        isArma: !!LISTA_ARMAS[codigo],
+        isHabilidade: !!LISTA_HABILIDADES[codigo],
+        isBiju: !!LISTA_BIJUS[codigo],
+        isKekkei: !!LISTA_KEKKEI[codigo],
+        isProdigio: !!LISTA_PRODIGIOS[codigo],
+        isUnica: !!LISTA_UNICAS[codigo],
+        isKinjutsu: !!LISTA_KINJUTSUS[codigo]
+    };
+}
+
+function codigoExiste(codigo) {
+    const tipo = identificarTipo(codigo);
+    return tipo.isArte || tipo.isArma || tipo.isHabilidade || tipo.isBiju || tipo.isKekkei || tipo.isProdigio || tipo.isUnica || tipo.isKinjutsu;
+}
+
+function getLimiteSlots(codigo) {
+    const tipo = identificarTipo(codigo);
+
+    if (tipo.isArma || tipo.isBiju || codigo === 'PGEN' || (tipo.isUnica && codigo !== 'SSOS')) return 1;
+    if (tipo.isKekkei) return LISTA_KEKKEI[codigo].max;
+    if (tipo.isProdigio && codigo !== 'PGEN') return 5;
+    if (tipo.isKinjutsu) return LISTA_KINJUTSUS[codigo].max;
+    return 3;
+}
+
+// ==========================================
+// SISTEMA DE BANCO DE DADOS LOCAL (JSON)
+// ==========================================
 const ARQUIVO_DB = './banco_dados.json';
 if (!fs.existsSync(ARQUIVO_DB)) {
     fs.writeFileSync(ARQUIVO_DB, JSON.stringify({ usuarios: {}, vagas: {}, agendaPretensao: {} }, null, 4));
 }
+
 function lerDB() { return JSON.parse(fs.readFileSync(ARQUIVO_DB, 'utf-8')); }
 function salvarDB(dados) { fs.writeFileSync(ARQUIVO_DB, JSON.stringify(dados, null, 4)); }
 
 function puxarSlots(codigo, nomeVaga) {
-    const db = lerDB(); const ocupantes = db.vagas[codigo] || [];
-    const nomesPadrao = ['um', 'dois', 'três']; let slots = [];
-    for (let i = 0; i < 3; i++) slots.push(ocupantes[i] ? `<@${ocupantes[i]}>` : nomesPadrao[i]);
+    const db = lerDB();
+    const ocupantes = db.vagas[codigo] || [];
+    const nomesPadrao = ['um', 'dois', 'três'];
+    const slots = [];
+
+    for (let i = 0; i < 3; i++) {
+        slots.push(ocupantes[i] ? `<@${ocupantes[i]}>` : nomesPadrao[i]);
+    }
+
     return `٬ ${nomeVaga}.\n𓏺 ${slots.join(', ')}.`;
 }
 
 function puxarSlotsEspeciais(codigo, nomeVaga, maxSlots = 5) {
-    const db = lerDB(); const ocupantes = db.vagas[codigo] || [];
-    const nomesPadrao = ['Um', 'dois', 'três', 'quatro', 'cinco']; let slots = [];
-    for (let i = 0; i < maxSlots; i++) slots.push(ocupantes[i] ? `<@${ocupantes[i]}>` : (nomesPadrao[i] || 'vaga'));
+    const db = lerDB();
+    const ocupantes = db.vagas[codigo] || [];
+    const nomesPadrao = ['Um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove'];
+    const slots = [];
+
+    for (let i = 0; i < maxSlots; i++) {
+        slots.push(ocupantes[i] ? `<@${ocupantes[i]}>` : (nomesPadrao[i] || 'vaga'));
+    }
+
     return `٬ ${nomeVaga}.\n𓏺 ${slots.join(', ')}.`;
 }
 
 function puxarSlotsArma(codigo) {
-    const arma = LISTA_ARMAS[codigo]; const db = lerDB(); const ocupantes = db.vagas[codigo] || [];
+    const arma = LISTA_ARMAS[codigo];
+    const db = lerDB();
+    const ocupantes = db.vagas[codigo] || [];
     return `٬ ${arma.nome}  \`[ CÓDIGO: ${codigo} ]\`\n${arma.info}\n𓏺 Vaga: ${ocupantes[0] ? `<@${ocupantes[0]}>` : 'disponível'}.`;
 }
 
 function puxarSlotsBiju(codigo) {
-    const biju = LISTA_BIJUS[codigo]; const db = lerDB(); const ocupantes = db.vagas[codigo] || [];
+    const biju = LISTA_BIJUS[codigo];
+    const db = lerDB();
+    const ocupantes = db.vagas[codigo] || [];
     return `٬ ${biju}  \`[ CÓDIGO: ${codigo} ]\`\n𓏺 Hospedeiro: ${ocupantes[0] ? `<@${ocupantes[0]}>` : 'disponível'}.`;
 }
 
 function puxarSlotsKinjutsu(codigo) {
-    const kin = LISTA_KINJUTSUS[codigo]; const db = lerDB(); const ocupantes = db.vagas[codigo] || [];
-    let slots = [];
-    for (let i = 0; i < kin.max; i++) slots.push(ocupantes[i] ? `<@${ocupantes[i]}>` : 'vago');
+    const kin = LISTA_KINJUTSUS[codigo];
+    const db = lerDB();
+    const ocupantes = db.vagas[codigo] || [];
+    const slots = [];
+
+    for (let i = 0; i < kin.max; i++) {
+        slots.push(ocupantes[i] ? `<@${ocupantes[i]}>` : 'vago');
+    }
+
     return `• \`[ CÓDIGO: ${codigo} ]\`\n٬ ${kin.nome.toLowerCase()} · ${slots.join(' & ')}.\n${kin.info}`;
 }
 
+function puxarSlotsKekkei(codigo) {
+    const kekkei = LISTA_KEKKEI[codigo];
+    const db = lerDB();
+    const ocupantes = db.vagas[codigo] || [];
+
+    const nomesPadrao = {
+        BAKU: ['um', 'dois', 'três'],
+        KOTO: ['um', 'dois', 'três'],
+        JITO: ['um', 'dois', 'três'],
+        SHAK: ['um', 'dois', 'três'],
+        TAIT: ['um', 'dois', 'três'],
+        MEIT: ['um', 'dois', 'três'],
+        SHOT: ['um', 'dois', 'três'],
+        JINT: ['um', 'dois', 'três'],
+        SAKI: ['uma vaga'],
+        SATE: ['vaga', 'vaga'],
+        MOKU: ['uma vaga'],
+        RANT: ['um', 'dois', 'três'],
+        SOMA: ['um', 'dois'],
+        YOTO: ['um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove'],
+        FUTT: ['um', 'dois', 'três'],
+        JINK: ['vaga sem clã', 'vaga kamizuru']
+    };
+
+    if (kekkei.max === Infinity) {
+        const lista = ocupantes.length > 0
+            ? ocupantes.map(id => `<@${id}>`).join(', ')
+            : 'ilimitado';
+
+        return `• \`[ CÓDIGO: ${codigo} ]\`\n٬ ${kekkei.nome}.\n𓏺 ${lista}.`;
+    }
+
+    const slots = [];
+    const padrao = nomesPadrao[codigo] || ['um', 'dois', 'três'];
+
+    for (let i = 0; i < kekkei.max; i++) {
+        slots.push(ocupantes[i] ? `<@${ocupantes[i]}>` : (padrao[i] || 'vaga'));
+    }
+
+    return `• \`[ CÓDIGO: ${codigo} ]\`\n٬ ${kekkei.nome}.\n𓏺 ${slots.join(', ')}.`;
+}
+
+function construirPainelVagas(pagina) {
+    const embed = new EmbedBuilder().setColor('#2b2d31');
+    const botaoVoltar = new ButtonBuilder().setCustomId('voltar').setLabel('⬅️ Anterior').setStyle(ButtonStyle.Secondary).setDisabled(pagina === 1);
+    const botaoProximo = new ButtonBuilder().setCustomId('proximo').setLabel('Próxima ➡️').setStyle(ButtonStyle.Primary).setDisabled(pagina === 10);
+
+    if (pagina === 1) {
+        embed.setTitle('📜 Listagem — 【 ARTES EXÓTICAS 】').setDescription(Object.keys(LISTA_ARTES).map(cod => `• \`[ CÓDIGO: ${cod} ]\`\n` + puxarSlots(cod, LISTA_ARTES[cod])).join('\n\n'));
+    }
+    else if (pagina === 2) {
+        embed.setTitle('📜 Listagem — 【 HABILIDADES EXÓTICAS 】').setDescription(Object.keys(LISTA_HABILIDADES).map(cod => `• \`[ CÓDIGO: ${cod} ]\`\n` + puxarSlots(cod, LISTA_HABILIDADES[cod])).join('\n\n'));
+    }
+    else if (pagina === 3) {
+        embed.setTitle('📜 Listagem — Castelo 【 ARMAS EXÓTICAS 】').setDescription(['SENSU', 'SHOKEN', 'HINOKEN', 'GUNBAI', 'OGAMA', 'GARIAN', 'CHAKTO', 'YOROI', 'RAIJIN', 'ZANBATO', 'KOKUTO', 'SOSHUG', 'KYOMEI', 'MATEKI', 'KUSATS', 'KUSANA', 'KUROSA'].map(cod => puxarSlotsArma(cod)).join('\n\n'));
+    }
+    else if (pagina === 4) {
+        embed.setTitle('📜 Listagem — 【 ARMAS DA NÉVOA & RIKUDOU 】').setDescription(`**𓏺𓏺 i . Espadas · Névoa ▬**\n\n${['KUBIKI', 'SAMEHA', 'NUIBARI', 'KABUTO', 'SHIBUKI', 'KIBA', 'HIRAME'].map(cod => puxarSlotsArma(cod)).join('\n\n')}\n\n**𓏺𓏺 i . Armas · Rikudou ▬**\n\n${['BASHO', 'BENI', 'BOHAKU', 'KOKIN', 'SHICHI'].map(cod => puxarSlotsArma(cod)).join('\n\n')}`);
+    }
+    else if (pagina === 5) {
+        embed.setTitle('📜 Listagem — 【 HABILIDADES ÚNICAS 】').setDescription(Object.keys(LISTA_UNICAS).map(cod => {
+            const maxSlots = cod === 'SSOS' ? 3 : 1;
+            return `• \`[ CÓDIGO: ${cod} ]\`\n${puxarSlotsEspeciais(cod, LISTA_UNICAS[cod], maxSlots)}`;
+        }).join('\n\n'));
+    }
+    else if (pagina === 6) {
+        embed.setTitle('📜 Listagem — 【 TRAÇOS 】').setDescription(`*Atenção: Os traços abaixo são uma exceção. Sua obtenção é feita através de sorteio e não estarão disponíveis para a pretensão comum.*\n\n٬ Futatsu no Hikari.\n𓏺 **vaga exclusiva.**\n\n٬ Hi no Ishi.\n𓏺 **vaga exclusiva.**\n\n٬ Hōbi Chakura.\n𓏺 **vaga exclusiva.**\n\n٬ Kongō Fūsa.\n𓏺 **vaga exclusiva.**\n\n٬ Tairyoku Kaifuku.\n𓏺 **vaga exclusiva.**\n\n٬ Saisei Noryoku.\n𓏺 **vaga exclusiva.**\n\n٬ Saikyō no Tate.\n𓏺 **vaga exclusiva.**\n\n٬ Nanosaizu no Dokumushi.\n𓏺 **vaga exclusiva.**\n\n٬ Suna no Tate.\n𓏺 **vaga exclusiva.**\n\n٬ Nijū Kekkei.\n𓏺 **vaga exclusiva.**\n\n٬ Sanbiki no Kemono.\n𓏺 **vaga exclusiva.**\n\n٬ Shinten Kugutsu Juin.\n𓏺 **vaga exclusiva.**\n\n٬ Sonzai no Gonkasei.\n𓏺 **vaga exclusiva.**\n\n٬ Mizu to Abura.\n𓏺 **vaga exclusiva.**\n\n٬ Experimento Bem Sucedido.\n𓏺 **vaga exclusiva.**`);
+    }
+    else if (pagina === 7) {
+        embed.setTitle('📜 Listagem — 【 PRODÍGIOS 】').setDescription(Object.keys(LISTA_PRODIGIOS).map(cod => {
+            const maxSlots = cod === 'PGEN' ? 1 : 5;
+            return `• \`[ CÓDIGO: ${cod} ]\`\n${puxarSlotsEspeciais(cod, LISTA_PRODIGIOS[cod], maxSlots)}`;
+        }).join('\n\n'));
+    }
+    else if (pagina === 8) {
+        embed.setTitle('📜 Listagem — 【 BIJUS 】').setDescription(Object.keys(LISTA_BIJUS).map(cod => puxarSlotsBiju(cod)).join('\n\n'));
+    }
+    else if (pagina === 9) {
+        embed.setTitle('📜 Listagem — 【 KEKKEI GENKAI 】').setDescription(Object.keys(LISTA_KEKKEI).map(cod => puxarSlotsKekkei(cod)).join('\n\n'));
+    }
+    else if (pagina === 10) {
+        embed.setTitle('📜 Listagem — 【 KINJUTSUS 】').setDescription(Object.keys(LISTA_KINJUTSUS).map(cod => puxarSlotsKinjutsu(cod)).join('\n\n'));
+    }
+
+    embed.setFooter({ text: `Página ${pagina}/10` });
+
+    const menu = new StringSelectMenuBuilder().setCustomId('menu_vagas_nav').setPlaceholder('Saltar para categoria...')
+        .addOptions(
+            { label: '1. Artes Exóticas', value: '1' },
+            { label: '2. Habilidades Exóticas', value: '2' },
+            { label: '3. Armas Exóticas', value: '3' }, 
+            { label: '4. Névoa & Rikudou', value: '4' },
+            { label: '5. Habilidades Únicas', value: '5' },
+            { label: '6. Traços', value: '6' },
+            { label: '7. Prodígios', value: '7' },
+            { label: '8. Bijus', value: '8' },
+            { label: '9. Kekkei Genkai', value: '9' },
+            { label: '10. Kinjutsus', value: '10' }
+        );
+
+    return {
+        embeds: [embed],
+        components: [
+            new ActionRowBuilder().addComponents(botaoVoltar, botaoProximo),
+            new ActionRowBuilder().addComponents(menu)
+        ]
+    };
+}
+
+async function atualizarPaineisVagas() {
+    for (const [messageId, painel] of paineisVagasAtivos.entries()) {
+        try {
+            const canal = await client.channels.fetch(painel.channelId);
+            const mensagem = await canal.messages.fetch(messageId);
+            await mensagem.edit(construirPainelVagas(painel.pagina));
+        } catch (error) {
+            paineisVagasAtivos.delete(messageId);
+        }
+    }
+}
+
 client.once('ready', (clientReady) => {
-    console.log(`O bot ${clientReady.user.tag} está online!`);
+    console.log(` O bot ${clientReady.user.tag} está online com comandos de barra!`);
+
+    setInterval(async () => {
+        const db = lerDB();
+        if (db.agendaPretensao && db.agendaPretensao.ativa) {
+            const agora = Date.now();
+            if (agora >= db.agendaPretensao.timestamp) {
+                db.agendaPretensao.ativa = false;
+                salvarDB(db);
+
+                try {
+                    const canal = await client.channels.fetch(CANAL_PRETENSAO_ID);
+                    if (canal) {
+                        await canal.permissionOverwrites.edit(canal.guild.roles.everyone, {
+                            SendMessages: true
+                        });
+                        
+                        await canal.send('📢 **Canal de pretensão aberto!** Não esqueça de olhar o código da vaga que você almeja.');
+                        console.log(' [Agendador] Canal de pretensão aberto automaticamente com sucesso!');
+                    }
+                } catch (error) {
+                    console.error('❌ Erro no agendador ao tentar abrir o canal:', error);
+                }
+            }
+        }
+    }, 30000);
 });
 
 // ==========================================
-// COMANDOS DE BARRA E INTERAÇÕES
+// SISTEMA DE PRETENSÃO (TEXTO CONVENCIONAL)
+// ==========================================
+client.on('messageCreate', async (message) => {
+    if (message.author.bot || message.channel.id !== CANAL_PRETENSAO_ID) return;
+
+    const codigo = message.content.trim().toUpperCase();
+    const db = lerDB();
+    const tipo = identificarTipo(codigo);
+
+    if (codigoExiste(codigo)) {
+        const nomeExibicao = getNomeVaga(codigo);
+        
+        if (!db.vagas[codigo]) db.vagas[codigo] = [];
+        if (!db.usuarios[message.author.id]) db.usuarios[message.author.id] = [];
+
+        if (db.vagas[codigo].includes(message.author.id)) {
+            message.delete().catch(() => {});
+            return message.channel.send(`⚠️ <@${message.author.id}>, você já possui a vaga **${nomeExibicao}**!`).then(msg => setTimeout(() => msg.delete().catch(() => {}), 4000));
+        }
+
+        const limiteSlots = getLimiteSlots(codigo);
+
+        if (limiteSlots !== Infinity && db.vagas[codigo].length >= limiteSlots) {
+            message.delete().catch(() => {});
+            return message.channel.send(`❌ <@${message.author.id}>, desculpe, os slots para **${nomeExibicao}** já estão cheios!`).then(msg => setTimeout(() => msg.delete().catch(() => {}), 4000));
+        }
+
+        if (tipo.isArte) {
+            const minhasVagas = db.usuarios[message.author.id];
+            const qtdExoticas = minhasVagas.filter(v => LISTA_ARTES[v]).length;
+            const possuiTraco = minhasVagas.some(v => !LISTA_ARTES[v] && !LISTA_ARMAS[v] && !LISTA_HABILIDADES[v] && !LISTA_BIJUS[v] && !LISTA_KEKKEI[v] && !LISTA_PRODIGIOS[v] && !LISTA_UNICAS[v] && !LISTA_KINJUTSUS[v]);
+            if ((possuiTraco && qtdExoticas >= 2) || (!possuiTraco && qtdExoticas >= 3)) {
+                message.delete().catch(() => {});
+                return message.channel.send(`🚫 <@${message.author.id}>, limite atingido pelas regras de exóticas do RP.`).then(msg => setTimeout(() => msg.delete().catch(() => {}), 5000));
+            }
+        }
+
+        db.vagas[codigo].push(message.author.id);
+        db.usuarios[message.author.id].push(codigo);
+        salvarDB(db);
+        await atualizarPaineisVagas();
+
+        message.reply(`✅ Sucesso! Você garantiu seu slot em **${nomeExibicao}**.`)
+            .then(msg => setTimeout(() => msg.delete().catch(() => {}), 8000));
+    } else {
+        message.delete().catch(() => {});
+        message.channel.send(`❌ <@${message.author.id}>, código inválido.`).then(msg => setTimeout(() => msg.delete().catch(() => {}), 4000));
+    }
+});
+
+// ==========================================
+// EXECUÇÃO DOS COMANDOS DE BARRA (/)
 // ==========================================
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
 
-    // ... (Mantém as outras lógicas de comandos igual ao original) ...
+    const { commandName } = interaction;
 
-    if (interaction.commandName === 'vagas') {
-        let paginaAtual = 1;
-        const textoPagina6_Tracos = `*Atenção: Os traços abaixo são uma exceção. Sua obtenção é feita através de sorteio e não estarão disponíveis para a pretensão comum.*\n\n٬ Futatsu no Hikari.\n𓏺 **vaga exclusiva.**\n\n٬ Hi no Ishi.\n𓏺 **vaga exclusiva.**\n\n٬ Hōbi Chakura.\n𓏺 **vaga exclusiva.**\n\n٬ Kongō Fūsa.\n𓏺 **vaga exclusiva.**\n\n٬ Tairyoku Kaifuku.\n𓏺 **vaga exclusiva.**\n\n٬ Saisei Noryoku.\n𓏺 **vaga exclusiva.**\n\n٬ Saikyō no Tate.\n𓏺 **vaga exclusiva.**\n\n٬ Nanosaizu no Dokumushi.\n𓏺 **vaga exclusiva.**\n\n٬ Suna no Tate.\n𓏺 **vaga exclusiva.**\n\n٬ Nijū Kekkei.\n𓏺 **vaga exclusiva.**\n\n٬ Sanbiki no Kemono.\n𓏺 **vaga exclusiva.**\n\n٬ Shinten Kugutsu Juin.\n𓏺 **vaga exclusiva.**\n\n٬ Sonzai no Gonkasei.\n𓏺 **vaga exclusiva.**\n\n٬ Mizu to Abura.\n𓏺 **vaga exclusiva.**\n\n٬ Experimento Bem Sucedido.\n𓏺 **vaga exclusiva.**`;
-
-        function construirPainel(pagina) {
-            const embed = new EmbedBuilder().setColor('#2b2d31');
-            const botaoVoltar = new ButtonBuilder().setCustomId('voltar').setLabel('⬅️ Anterior').setStyle(ButtonStyle.Secondary).setDisabled(pagina === 1);
-            const botaoProximo = new ButtonBuilder().setCustomId('proximo').setLabel('Próxima ➡️').setStyle(ButtonStyle.Primary).setDisabled(pagina === 10);
-
-            if (pagina === 1) {
-                embed.setTitle('📜 Listagem — 【 ARTES EXÓTICAS 】').setDescription(Object.keys(LISTA_ARTES).map(cod => `• \`[ CÓDIGO: ${cod} ]\`\n` + puxarSlots(cod, LISTA_ARTES[cod])).join('\n\n'));
-            }
-            else if (pagina === 2) {
-                embed.setTitle('📜 Listagem — 【 HABILIDADES EXÓTICAS 】').setDescription(Object.keys(LISTA_HABILIDADES).map(cod => `• \`[ CÓDIGO: ${cod} ]\`\n` + puxarSlots(cod, LISTA_HABILIDADES[cod])).join('\n\n'));
-            }
-            else if (pagina === 3) {
-                embed.setTitle('📜 Listagem — Castelo 【 ARMAS EXÓTICAS 】').setDescription(['SENSU', 'SHOKEN', 'HINOKEN', 'GUNBAI', 'OGAMA', 'GARIAN', 'CHAKTO', 'YOROI', 'RAIJIN', 'ZANBATO', 'KOKUTO', 'SOSHUG', 'KYOMEI', 'MATEKI', 'KUSATS', 'KUSANA', 'KUROSA'].map(cod => puxarSlotsArma(cod)).join('\n\n'));
-            }
-            else if (pagina === 4) {
-                embed.setTitle('📜 Listagem — 【 ARMAS DA NÉVOA & RIKUDOU 】').setDescription(`**𓏺𓏺 i . Espadas · Névoa ▬**\n\n${['KUBIKI', 'SAMEHA', 'NUIBARI', 'KABUTO', 'SHIBUKI', 'KIBA', 'HIRAME'].map(cod => puxarSlotsArma(cod)).join('\n\n')}\n\n**𓏺𓏺 i . Armas · Rikudou ▬**\n\n${['BASHO', 'BENI', 'BOHAKU', 'KOKIN', 'SHICHI'].map(cod => puxarSlotsArma(cod)).join('\n\n')}`);
-            }
-            else if (pagina === 5) {
-                embed.setTitle('📜 Listagem — 【 HABILIDADES ÚNICAS 】').setDescription(Object.keys(LISTA_UNICAS).map(cod => `• \`[ CÓDIGO: ${cod} ]\`\n${puxarSlotsEspeciais(cod, LISTA_UNICAS[cod], cod === 'SSOS' ? 3 : 1)}`).join('\n\n'));
-            }
-            else if (pagina === 6) {
-                embed.setTitle('📜 Listagem — 【 TRAÇOS 】').setDescription(textoPagina6_Tracos);
-            }
-            else if (pagina === 7) {
-                embed.setTitle('📜 Listagem — 【 PRODÍGIOS 】').setDescription(Object.keys(LISTA_PRODIGIOS).map(cod => `• \`[ CÓDIGO: ${cod} ]\`\n${puxarSlotsEspeciais(cod, LISTA_PRODIGIOS[cod], cod === 'PGEN' ? 1 : 5)}`).join('\n\n'));
-            }
-            else if (pagina === 8) {
-                embed.setTitle('📜 Listagem — 【 BIJUS 】').setDescription(Object.keys(LISTA_BIJUS).map(cod => puxarSlotsBiju(cod)).join('\n\n'));
-            }
-            else if (pagina === 9) {
-                embed.setTitle('📜 Listagem — 【 KEKKEI GENKAI 】').setDescription(
-                    Object.keys(LISTA_KEKKEI).map(cod => `• \`[ CÓDIGO: ${cod} ]\`\n${puxarSlotsEspeciais(cod, LISTA_KEKKEI[cod].nome, LISTA_KEKKEI[cod].max === Infinity ? 5 : LISTA_KEKKEI[cod].max)}`).join('\n\n')
-                );
-            }
-            else if (pagina === 10) {
-                embed.setTitle('📜 Listagem — 【 KINJUTSUS 】').setDescription(Object.keys(LISTA_KINJUTSUS).map(cod => puxarSlotsKinjutsu(cod)).join('\n\n'));
-            }
-
-            embed.setFooter({ text: `Página ${pagina}/10` });
-            const menu = new StringSelectMenuBuilder().setCustomId('menu_vagas_nav').setPlaceholder('Saltar para categoria...')
-                .addOptions(
-                    { label: '1. Artes Exóticas', value: '1' },
-                    { label: '2. Habilidades Exóticas', value: '2' },
-                    { label: '3. Armas Exóticas', value: '3' }, 
-                    { label: '4. Névoa & Rikudou', value: '4' },
-                    { label: '5. Habilidades Únicas', value: '5' },
-                    { label: '6. Traços', value: '6' },
-                    { label: '7. Prodígios', value: '7' },
-                    { label: '8. Bijus', value: '8' },
-                    { label: '9. Kekkei Genkai', value: '9' },
-                    { label: '10. Kinjutsus', value: '10' }
-                );
-
-            return { embeds: [embed], components: [new ActionRowBuilder().addComponents(botaoVoltar, botaoProximo), new ActionRowBuilder().addComponents(menu)] };
+    if (commandName === 'tools') {
+        if (!interaction.memberPermissions || !interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
+            return interaction.reply({ content: '❌ Você não tem permissão de Administrador para usar este comando.', ephemeral: true });
         }
 
-        const painel = await interaction.reply({ ...construirPainel(paginaAtual), fetchReply: true });
+        const embedTools = new EmbedBuilder()
+            .setColor('#2b2d31')
+            .setTitle('🛠️ Painel de Comando da Staff')
+            .setDescription('Gerencie as vagas do servidor utilizando os novos comandos de barra:\n\n' +
+                '• `/setvaga` — Escolha o membro e o código para dar uma vaga manualmente.\n' +
+                '• `/delvaga` — Escolha o membro e o código para remover de forma forçada.\n' +
+                '• `/setarpretensao` — Programa e tranca o canal de pretensão até a data escolhida.');
+
+        return interaction.reply({ embeds: [embedTools] });
+    }
+
+    if (commandName === 'setarpretensao') {
+        if (!interaction.memberPermissions || !interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
+            return interaction.reply({ content: '❌ Você não tem permissão de Administrador para usar este comando.', ephemeral: true });
+        }
+
+        const diaInput = interaction.options.getString('dia'); 
+        const horarioInput = interaction.options.getString('horario'); 
+
+        const partesDia = diaInput.split('/');
+        const partesHorario = horarioInput.split(':');
+
+        if (partesDia.length < 2 || partesHorario.length < 2) {
+            return interaction.reply({ content: '❌ Formato inválido! Use o dia como `DD/MM` e o horário como `HH:MM`.', ephemeral: true });
+        }
+
+        const dia = partesDia[0].padStart(2, '0');
+        const mes = partesDia[1].padStart(2, '0');
+        const ano = partesDia[2] ? partesDia[2] : new Date().getFullYear();
+
+        const hora = partesHorario[0].padStart(2, '0');
+        const minuto = partesHorario[1].padStart(2, '0');
+
+        const dataStringISO = `${ano}-${mes}-${dia}T${hora}:${minuto}:00-03:00`;
+        const dataAlvo = new Date(dataStringISO);
+
+        if (isNaN(dataAlvo.getTime())) {
+            return interaction.reply({ content: '❌ Data ou horário fornecidos são inválidos.', ephemeral: true });
+        }
+
+        if (dataAlvo.getTime() <= Date.now()) {
+            return interaction.reply({ content: '❌ A data e o horário programados precisam estar no futuro!', ephemeral: true });
+        }
+
+        await interaction.deferReply();
+
+        try {
+            const canal = await interaction.guild.channels.fetch(CANAL_PRETENSAO_ID);
+            if (canal) {
+                await canal.permissionOverwrites.edit(canal.guild.roles.everyone, {
+                    SendMessages: false
+                });
+            }
+        } catch (err) {
+            return interaction.editReply({ content: '❌ Não consegui fechar o canal automaticamente. Verifique se o ID configurado está correto.' });
+        }
+
+        const db = lerDB();
+        db.agendaPretensao = {
+            ativa: true,
+            timestamp: dataAlvo.getTime(),
+            dataFormatada: `${diaInput} às ${horarioInput} (Horário de Brasília)`
+        };
+        salvarDB(db);
+
+        return interaction.editReply({ content: `🔒 O canal de pretensão foi **fechado** com sucesso! Ele abrirá de forma automática no dia **${diaInput}** às **${horarioInput}** (Sincronizado com o Horário de Brasília).` });
+    }
+
+    if (commandName === 'setvaga') {
+        if (!interaction.memberPermissions || !interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
+            return interaction.reply({ content: '❌ Permissão negada.', ephemeral: true });
+        }
+
+        const miembro = interaction.options.getUser('membro');
+        const codigo = interaction.options.getString('codigo').toUpperCase();
+
+        if (!codigoExiste(codigo)) {
+            return interaction.reply({ content: '❌ Esse código de vaga não existe!', ephemeral: true });
+        }
+
+        const db = lerDB();
+        if (!db.vagas[codigo]) db.vagas[codigo] = [];
+        if (!db.usuarios[miembro.id]) db.usuarios[miembro.id] = [];
+
+        if (db.vagas[codigo].includes(miembro.id)) {
+            return interaction.reply({ content: `⚠️ O jogador <@${miembro.id}> já possui essa vaga.`, ephemeral: true });
+        }
+
+        const limiteSlots = getLimiteSlots(codigo);
+
+        if (limiteSlots !== Infinity && db.vagas[codigo].length >= limiteSlots) {
+            return interaction.reply({ content: '❌ Esta vaga está sem slots livres!', ephemeral: true });
+        }
+
+        db.vagas[codigo].push(miembro.id);
+        db.usuarios[miembro.id].push(codigo);
+        salvarDB(db);
+        await atualizarPaineisVagas();
+
+        const nomeExibicao = getNomeVaga(codigo);
+        return interaction.reply({ content: `✅ Vaga **${nomeExibicao}** atribuída com sucesso para <@${miembro.id}>!` });
+    }
+
+    if (commandName === 'delvaga') {
+        if (!interaction.memberPermissions || !interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
+            return interaction.reply({ content: '❌ Permissão negada.', ephemeral: true });
+        }
+
+        const miembro = interaction.options.getUser('membro');
+        const codigo = interaction.options.getString('codigo').toUpperCase();
+
+        const db = lerDB();
+        if (!db.vagas[codigo] || !db.vagas[codigo].includes(miembro.id)) {
+            return interaction.reply({ content: `❌ O jogador <@${miembro.id}> não ocupa a vaga \`${codigo}\`.`, ephemeral: true });
+        }
+
+        db.vagas[codigo] = db.vagas[codigo].filter(id => id !== miembro.id);
+        if (db.usuarios[miembro.id]) db.usuarios[miembro.id] = db.usuarios[miembro.id].filter(v => v !== codigo);
+        salvarDB(db);
+        await atualizarPaineisVagas();
+
+        const nomeExibicao = getNomeVaga(codigo);
+        return interaction.reply({ content: `🗑️ Vaga **${nomeExibicao}** removida com sucesso de <@${miembro.id}>.` });
+    }
+
+    if (commandName === 'minhasvagas') {
+        const db = lerDB();
+        const minhasVagas = db.usuarios[interaction.user.id] || [];
+
+        if (minhasVagas.length === 0) {
+            return interaction.reply({ content: '📭 Você não possui nenhuma vaga registrada.', ephemeral: true });
+        }
+
+        const embed = new EmbedBuilder()
+            .setColor('#2b2d31')
+            .setTitle('📂 Sua Listagem no RP')
+            .setDescription(minhasVagas.map(v => `• **${getNomeVaga(v)}** \`[ ${v} ]\``).join('\n\n') + '\n\n*Abidique de uma vaga usando o seletor abaixo:*');
+
+        const seletor = new StringSelectMenuBuilder().setCustomId('abdicar_menu').setPlaceholder('Escolha uma vaga para abrir mão...');
+        minhasVagas.forEach(v => {
+            const labelFinal = getNomeVaga(v);
+            seletor.addOptions(new StringSelectMenuOptionBuilder().setLabel(labelFinal.substring(0, 25)).setValue(v));
+        });
+
+        const row = new ActionRowBuilder().addComponents(seletor);
+        const painelMinhasVagas = await interaction.reply({ embeds: [embed], components: [row], fetchReply: true });
+
+        const collector = painelMinhasVagas.createMessageComponentCollector({ filter: (i) => i.user.id === interaction.user.id, time: 60000 });
+        collector.on('collect', async (i) => {
+            if (i.customId === 'abdicar_menu') {
+                const vagaSelecionada = i.values[0];
+                const dadosAtuais = lerDB();
+
+                if (dadosAtuais.usuarios[interaction.user.id]) {
+                    dadosAtuais.usuarios[interaction.user.id] = dadosAtuais.usuarios[interaction.user.id].filter(v => v !== vagaSelecionada);
+                }
+
+                if (dadosAtuais.vagas[vagaSelecionada]) {
+                    dadosAtuais.vagas[vagaSelecionada] = dadosAtuais.vagas[vagaSelecionada].filter(id => id !== interaction.user.id);
+                }
+
+                salvarDB(dadosAtuais);
+                await atualizarPaineisVagas();
+                await i.update({ content: `✅ Você abdicou da vaga com sucesso!`, embeds: [], components: [] });
+            }
+        });
+        return;
+    }
+
+    if (commandName === 'vagas') {
+        let paginaAtual = 1;
+
+        const painel = await interaction.reply({ ...construirPainelVagas(paginaAtual), fetchReply: true });
+        paineisVagasAtivos.set(painel.id, {
+            channelId: painel.channel.id,
+            pagina: paginaAtual
+        });
+
         const collector = painel.createMessageComponentCollector({ filter: (i) => i.user.id === interaction.user.id, time: 180000 });
 
         collector.on('collect', async (i) => {
             if (i.customId === 'proximo') paginaAtual++;
             else if (i.customId === 'voltar') paginaAtual--;
             else if (i.customId === 'menu_vagas_nav') paginaAtual = parseInt(i.values[0]);
-            await i.update(construirPainel(paginaAtual));
+
+            paineisVagasAtivos.set(painel.id, {
+                channelId: painel.channel.id,
+                pagina: paginaAtual
+            });
+
+            await i.update(construirPainelVagas(paginaAtual));
         });
-        collector.on('end', () => painel.edit({ components: [] }).catch(() => {}));
+
+        collector.on('end', () => {
+            paineisVagasAtivos.delete(painel.id);
+            painel.edit({ components: [] }).catch(() => {});
+        });
     }
 });
 
