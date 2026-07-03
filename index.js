@@ -373,7 +373,7 @@ function construirPainelVagas(pagina) {
     else if (pagina === 6) {
         embed
             .setTitle('📜 Listagem — 【 TRAÇOS 】')
-            .setDescription('*Atenção: Os traços abaixo são exclusivos. Apenas ADM pode usar esses códigos ou atribuir essas vagas.*\n\n' + Object.keys(LISTA_TRACOS).map(cod => puxarSlotExclusivo(cod, LISTA_TRACOS[cod])).join('\n\n'));
+            .setDescription('*Atenção: Os traços abaixo são exclusivos. Sua obtenção é feita por sorteio.*\n\n' + Object.keys(LISTA_TRACOS).map(cod => puxarSlotExclusivo(cod, LISTA_TRACOS[cod])).join('\n\n'));
     }
     else if (pagina === 7) {
         embed.setTitle('📜 Listagem — 【 PRODÍGIOS 】').setDescription(Object.keys(LISTA_PRODIGIOS).map(cod => {
@@ -393,7 +393,7 @@ function construirPainelVagas(pagina) {
     else if (pagina === 11) {
         embed
             .setTitle('📜 Listagem — 【 JUINJUTSUS 】')
-            .setDescription('*Apenas ADM pode usar esses códigos ou atribuir essas vagas.*\n\n' + Object.keys(LISTA_JUINJUTSUS).map(cod => puxarSlotExclusivo(cod, LISTA_JUINJUTSUS[cod].nome, LISTA_JUINJUTSUS[cod].info)).join('\n\n'));
+            .setDescription('* Os juinjutsus são exclusivos. Sua obtenção é atraves do Shirohebi.*\n\n' + Object.keys(LISTA_JUINJUTSUS).map(cod => puxarSlotExclusivo(cod, LISTA_JUINJUTSUS[cod].nome, LISTA_JUINJUTSUS[cod].info)).join('\n\n'));
     }
 
     embed.setFooter({ text: `Página ${pagina}/11` });
