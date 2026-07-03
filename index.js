@@ -669,59 +669,100 @@ client.once('ready', (clientReady) => {
 client.on('messageCreate', async (message) => {
     if (message.author.bot || message.channel.id !== CANAL_PRETENSAO_ID) return;
 
-    const codigo = message.content.trim().toUpperCase();
-    const db = lerDB();
-    const tipo = identificarTipo(codigo);
+    const codigos = message.content
+        .trim()
+        .toUpperCase()
+        .split(/\s+/)
+        .filter(Boolean);
 
-    if (codigoExiste(codigo)) {
+    if (codigos.length === 0) return;
+
+    if (codigos.length > 3) {
+        message.delete().catch(() => {});
+        return message.channel.send(`🚫 <@${message.author.id}>, você só pode tentar pegar até **3 vagas** por mensagem.`)
+            .then(msg => setTimeout(() => msg.delete().catch(() => {}), 5000));
+    }
+
+    if (new Set(codigos).size !== codigos.length) {
+        message.delete().catch(() => {});
+        return message.channel.send(`🚫 <@${message.author.id}>, não repita o mesmo código na mesma mensagem.`)
+            .then(msg => setTimeout(() => msg.delete().catch(() => {}), 5000));
+    }
+
+    const db = lerDB();
+    if (!db.usuarios[message.author.id]) db.usuarios[message.author.id] = [];
+
+    const sucessos = [];
+    const erros = [];
+
+    for (const codigo of codigos) {
+        const tipo = identificarTipo(codigo);
+
+        if (!codigoExiste(codigo)) {
+            erros.push(`❌ \`${codigo}\`: código inválido.`);
+            continue;
+        }
+
         const nomeExibicao = getNomeVaga(codigo);
 
         if (isCodigoApenasAdm(codigo) && !membroEhAdmin(message.member)) {
-            message.delete().catch(() => {});
-            return message.channel.send(`🚫 <@${message.author.id}>, essa vaga é exclusiva e só pode ser atribuída por ADM.`).then(msg => setTimeout(() => msg.delete().catch(() => {}), 5000));
+            erros.push(`🚫 **${nomeExibicao}**: vaga exclusiva de ADM.`);
+            continue;
         }
 
         if (isVagaBloqueada(codigo, db) && !membroEhAdmin(message.member)) {
-            message.delete().catch(() => {});
-            return message.channel.send(`🚫 <@${message.author.id}>, a vaga **${nomeExibicao}** está bloqueada no momento.`).then(msg => setTimeout(() => msg.delete().catch(() => {}), 5000));
+            erros.push(`🚫 **${nomeExibicao}**: vaga bloqueada no momento.`);
+            continue;
         }
-        
-        if (!db.vagas[codigo]) db.vagas[codigo] = [];
-        if (!db.usuarios[message.author.id]) db.usuarios[message.author.id] = [];
 
-        if (db.vagas[codigo].includes(message.author.id)) {
-            message.delete().catch(() => {});
-            return message.channel.send(`⚠️ <@${message.author.id}>, você já possui a vaga **${nomeExibicao}**!`).then(msg => setTimeout(() => msg.delete().catch(() => {}), 4000));
+        if (!db.vagas[codigo]) db.vagas[codigo] = [];
+
+        if (db.vagas[codigo].includes(message.author.id) || db.usuarios[message.author.id].includes(codigo)) {
+            erros.push(`⚠️ **${nomeExibicao}**: você já possui essa vaga.`);
+            continue;
         }
 
         const limiteSlots = getLimiteSlots(codigo);
 
         if (limiteSlots !== Infinity && db.vagas[codigo].length >= limiteSlots) {
-            message.delete().catch(() => {});
-            return message.channel.send(`❌ <@${message.author.id}>, desculpe, os slots para **${nomeExibicao}** já estão cheios!`).then(msg => setTimeout(() => msg.delete().catch(() => {}), 4000));
+            erros.push(`❌ **${nomeExibicao}**: slots cheios.`);
+            continue;
         }
 
         if (tipo.isArte) {
             const minhasVagas = db.usuarios[message.author.id];
             const qtdExoticas = minhasVagas.filter(v => LISTA_ARTES[v]).length;
             const possuiTraco = minhasVagas.some(v => LISTA_TRACOS[v]);
+
             if ((possuiTraco && qtdExoticas >= 2) || (!possuiTraco && qtdExoticas >= 3)) {
-                message.delete().catch(() => {});
-                return message.channel.send(`🚫 <@${message.author.id}>, limite atingido pelas regras de exóticas do RP.`).then(msg => setTimeout(() => msg.delete().catch(() => {}), 5000));
+                erros.push(`🚫 **${nomeExibicao}**: limite de exóticas atingido.`);
+                continue;
             }
         }
 
         db.vagas[codigo].push(message.author.id);
         db.usuarios[message.author.id].push(codigo);
+        sucessos.push(`✅ **${nomeExibicao}**`);
+    }
+
+    if (sucessos.length > 0) {
         salvarDB(db);
         await atualizarPaineisVagas();
-
-        message.reply(`✅ Sucesso! Você garantiu seu slot em **${nomeExibicao}**.`)
-            .then(msg => setTimeout(() => msg.delete().catch(() => {}), 8000));
-    } else {
-        message.delete().catch(() => {});
-        message.channel.send(`❌ <@${message.author.id}>, código inválido.`).then(msg => setTimeout(() => msg.delete().catch(() => {}), 4000));
     }
+
+    const resposta = [
+        sucessos.length ? `**Vagas garantidas:**\n${sucessos.join('\n')}` : null,
+        erros.length ? `**Não foi possível:**\n${erros.join('\n')}` : null
+    ].filter(Boolean).join('\n\n') || `❌ <@${message.author.id}>, nenhum código válido informado.`;
+
+    if (sucessos.length === 0) {
+        message.delete().catch(() => {});
+        return message.channel.send(resposta)
+            .then(msg => setTimeout(() => msg.delete().catch(() => {}), 8000));
+    }
+
+    return message.reply(resposta)
+        .then(msg => setTimeout(() => msg.delete().catch(() => {}), 8000));
 });
 
 // ==========================================
