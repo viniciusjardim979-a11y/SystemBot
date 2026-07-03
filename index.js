@@ -238,6 +238,26 @@ const LISTA_INVOCACOES = {
     'TAKA': { nome: 'Taka', max: 4, tipo: 'normal4', info: 'Falcões. Tamanho varia conforme função; sem restrição de aldeia ou clã.' }
 };
 
+// Dicionário de Modo Sábio — apenas ADM pode usar/dar essas vagas
+const LISTA_MODO_SABIO = {
+    'SMNA': {
+        nome: '𝗠𝘆𝗼𝗯𝗼𝗸𝘂𝘇𝗮𝗻, 𝗡𝗮𝗿𝘂𝘁𝗼',
+        info: "𓏺 Necessária a graduação de 𝗷𝗼𝗻𝗶𝗻.\n𓏺 Requer o contrato com 𝗚𝗮𝗺𝗮.\n𓏺 +𝟮𝟱𝟬 𝖼𝗁𝖺𝗄𝗋𝖺 𝗉𝗈𝗂𝗇𝗍'𝗌."
+    },
+    'SMJI': {
+        nome: '𝗠𝘆𝗼𝗯𝗼𝗸𝘂𝘇𝗮𝗻, 𝗝𝗶𝗿𝗮𝗶𝘆𝗮',
+        info: "𓏺 Necessária a graduação de 𝗷𝗼𝗻𝗶𝗻.\n𓏺 Requer o contrato com 𝗚𝗮𝗺𝗮.\n𓏺 +𝟮𝟬𝟬 𝖼𝗁𝖺𝗄𝗋𝖺 𝗉𝗈𝗂𝗇𝗍'𝗌."
+    },
+    'SMKA': {
+        nome: '𝗥𝘆𝘂̄𝗰𝗵𝗶𝗱𝗼̄, 𝗞𝗮𝗯𝘂𝘁𝗼',
+        info: "𓏺 Necessária a graduação de 𝗷𝗼𝗻𝗶𝗻.\n𓏺 Requer o contrato com 𝗛𝗲𝗯𝗶.\n𓏺 +𝟮𝟱𝟬 𝖼𝗁𝖺𝗄𝗋𝖺 𝗉𝗈𝗂𝗇𝗍'𝗌."
+    },
+    'SMMO': {
+        nome: '𝗦𝗲𝗻𝗷𝘂 𝗜𝗰𝗵𝗶𝘇𝗼𝗸𝘂, 𝗠𝗼𝗸𝘂𝘁𝗼𝗻 𝗦𝗲𝗻𝗻𝗶𝗻',
+        info: "𓏺 Necessária a graduação de 𝗷𝗼𝗻𝗶𝗻.\n𓏺 Requer o 𝗠𝗼𝗸𝘂𝘁𝗼𝗻.\n𓏺 +𝟯𝟬𝟬 𝖼𝗁𝖺𝗄𝗋𝖺 𝗉𝗈𝗂𝗇𝗍'𝗌."
+    }
+};
+
 // Dicionário de Kinjutsus
 // OBS: troquei Shiki Fūjin de SHIK para SHIF porque SHIK já é usado por Shikkotsumyaku em Kekkei Genkai.
 const LISTA_KINJUTSUS = {
@@ -270,6 +290,7 @@ function getNomeVaga(codigo) {
     if (LISTA_JUINJUTSUS[codigo]) return LISTA_JUINJUTSUS[codigo].nome;
     if (LISTA_CARACTERISTICAS[codigo]) return LISTA_CARACTERISTICAS[codigo].nome;
     if (LISTA_INVOCACOES[codigo]) return LISTA_INVOCACOES[codigo].nome;
+    if (LISTA_MODO_SABIO[codigo]) return LISTA_MODO_SABIO[codigo].nome;
     if (LISTA_KINJUTSUS[codigo]) return LISTA_KINJUTSUS[codigo].nome.toLowerCase();
     return codigo;
 }
@@ -287,13 +308,14 @@ function identificarTipo(codigo) {
         isJuinjutsu: !!LISTA_JUINJUTSUS[codigo],
         isCaracteristica: !!LISTA_CARACTERISTICAS[codigo],
         isInvocacao: !!LISTA_INVOCACOES[codigo],
+        isModoSabio: !!LISTA_MODO_SABIO[codigo],
         isKinjutsu: !!LISTA_KINJUTSUS[codigo]
     };
 }
 
 function codigoExiste(codigo) {
     const tipo = identificarTipo(codigo);
-    return tipo.isArte || tipo.isArma || tipo.isHabilidade || tipo.isBiju || tipo.isKekkei || tipo.isProdigio || tipo.isUnica || tipo.isTraco || tipo.isJuinjutsu || tipo.isCaracteristica || tipo.isInvocacao || tipo.isKinjutsu;
+    return tipo.isArte || tipo.isArma || tipo.isHabilidade || tipo.isBiju || tipo.isKekkei || tipo.isProdigio || tipo.isUnica || tipo.isTraco || tipo.isJuinjutsu || tipo.isCaracteristica || tipo.isInvocacao || tipo.isModoSabio || tipo.isKinjutsu;
 }
 
 function getLimiteSlots(codigo) {
@@ -304,6 +326,7 @@ function getLimiteSlots(codigo) {
     if (tipo.isProdigio && codigo !== 'PGEN') return 5;
     if (tipo.isKinjutsu) return LISTA_KINJUTSUS[codigo].max;
     if (tipo.isInvocacao) return LISTA_INVOCACOES[codigo].max;
+    if (tipo.isModoSabio) return 1;
     return 3;
 }
 
@@ -437,7 +460,7 @@ function puxarSlotExclusivo(codigo, nomeVaga, info = '') {
 }
 
 function isCodigoApenasAdm(codigo) {
-    return !!LISTA_TRACOS[codigo] || !!LISTA_JUINJUTSUS[codigo];
+    return !!LISTA_TRACOS[codigo] || !!LISTA_JUINJUTSUS[codigo] || !!LISTA_MODO_SABIO[codigo];
 }
 
 function membroEhAdmin(member) {
@@ -473,10 +496,18 @@ function puxarSlotsInvocacao(codigo) {
     return `▬ \`[ CÓDIGO: ${codigo} ]\` ${invocacao.nome}.\n↳ ${invocacao.info}\n٬ ${slots.join(', ')}.`;
 }
 
+function puxarSlotModoSabio(codigo) {
+    const modo = LISTA_MODO_SABIO[codigo];
+    const db = lerDB();
+    const ocupantes = db.vagas[codigo] || [];
+
+    return `٬ \`[ CÓDIGO: ${codigo} ]\` ${modo.nome}.\n${modo.info}\n٬ ${ocupantes[0] ? `<@${ocupantes[0]}>` : '𝘃𝗮𝗴𝗮 𝗲𝘅𝗰𝗹𝘂𝘀𝗶𝘃𝗮'}.`;
+}
+
 function construirPainelVagas(pagina) {
     const embed = new EmbedBuilder().setColor('#2b2d31');
     const botaoVoltar = new ButtonBuilder().setCustomId('voltar').setLabel('⬅️ Anterior').setStyle(ButtonStyle.Secondary).setDisabled(pagina === 1);
-    const botaoProximo = new ButtonBuilder().setCustomId('proximo').setLabel('Próxima ➡️').setStyle(ButtonStyle.Primary).setDisabled(pagina === 13);
+    const botaoProximo = new ButtonBuilder().setCustomId('proximo').setLabel('Próxima ➡️').setStyle(ButtonStyle.Primary).setDisabled(pagina === 14);
 
     if (pagina === 1) {
         embed.setTitle('📜 Listagem — 【 ARTES EXÓTICAS 】').setDescription(Object.keys(LISTA_ARTES).map(cod => `• \`[ CÓDIGO: ${cod} ]\`\n` + puxarSlots(cod, LISTA_ARTES[cod])).join('\n\n'));
@@ -534,7 +565,13 @@ function construirPainelVagas(pagina) {
             .setDescription(Object.keys(LISTA_INVOCACOES).map(cod => puxarSlotsInvocacao(cod)).join('\n\n'));
     }
 
-    embed.setFooter({ text: `Página ${pagina}/13` });
+    else if (pagina === 14) {
+        embed
+            .setTitle('📜 Listagem — 【 MODO SÁBIO 】')
+            .setDescription('*Inviável a obtenção destas vagas através da pretensão.*\n\n' + Object.keys(LISTA_MODO_SABIO).map(cod => puxarSlotModoSabio(cod)).join('\n\n'));
+    }
+
+    embed.setFooter({ text: `Página ${pagina}/14` });
 
     const menu = new StringSelectMenuBuilder().setCustomId('menu_vagas_nav').setPlaceholder('Saltar para categoria...')
         .addOptions(
@@ -550,7 +587,8 @@ function construirPainelVagas(pagina) {
             { label: '10. Kinjutsus', value: '10' },
             { label: '11. Juinjutsus', value: '11' },
             { label: '12. Características', value: '12' },
-            { label: '13. Invocações', value: '13' }
+            { label: '13. Invocações', value: '13' },
+            { label: '14. Modo Sábio', value: '14' }
         );
 
     return {
