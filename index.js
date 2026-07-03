@@ -716,9 +716,24 @@ client.on('interactionCreate', async (interaction) => {
             .setDescription('Gerencie as vagas do servidor utilizando os novos comandos de barra:\n\n' +
                 '• `/setvaga` — Escolha o membro e o código para dar uma vaga manualmente.\n' +
                 '• `/delvaga` — Escolha o membro e o código para remover de forma forçada.\n' +
+                '• `/limparvagas` — Libera todas as vagas registradas no banco.\n' +
                 '• `/setarpretensao` — Programa e tranca o canal de pretensão até a data escolhida.');
 
         return interaction.reply({ embeds: [embedTools] });
+    }
+
+    if (commandName === 'limparvagas') {
+        if (!interaction.memberPermissions || !interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
+            return interaction.reply({ content: '❌ Você não tem permissão de Administrador para usar este comando.', ephemeral: true });
+        }
+
+        const db = lerDB();
+        db.vagas = {};
+        db.usuarios = {};
+        salvarDB(db);
+        await atualizarPaineisVagas();
+
+        return interaction.reply({ content: '✅ Todas as vagas foram liberadas com sucesso.' });
     }
 
     if (commandName === 'setarpretensao') {

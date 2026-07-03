@@ -31,6 +31,10 @@ const commands = [
         .setDescription('🗑️ [Staff] Remove forçadamente a vaga de um jogador.')
         .addUserOption(option => option.setName('membro').setDescription('Selecione o jogador').setRequired(true))
         .addStringOption(option => option.setName('codigo').setDescription('Código da vaga (Ex: KUSA, SAMEHA)').setRequired(true)),
+
+    new SlashCommandBuilder()
+        .setName('limparvagas')
+        .setDescription('🧹 [Staff] Libera todas as vagas registradas no banco.'),
 ].map(command => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
