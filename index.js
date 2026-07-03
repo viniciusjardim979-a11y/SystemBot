@@ -132,6 +132,35 @@ const LISTA_UNICAS = {
     'KSIN': '𝖪𝖺gura Shingan', 'ATOR': '𝖠𝗋𝖺𝗍𝖺𝗄𝖾𝗍𝗈̄𝗌𝗁𝗂', 'NSUI': '𝖭𝖾𝗇𝗌𝗎𝗂𝗄𝖺𝗂'
 };
 
+// Dicionário de Traços — apenas ADM pode usar/dar essas vagas
+const LISTA_TRACOS = {
+    'FUTA': 'Futatsu no Hikari',
+    'HINO': 'Hi no Ishi',
+    'HOBI': 'Hōbi Chakura',
+    'KFUS': 'Kongō Fūsa',
+    'TKAI': 'Tairyoku Kaifuku',
+    'SNRK': 'Saisei Noryoku',
+    'STTE': 'Saikyō no Tate',
+    'NDOK': 'Nanosaizu no Dokumushi',
+    'SUTD': 'Suna no Tate',
+    'NIKE': 'Nijū Kekkei',
+    'SBKE': 'Sanbiki no Kemono',
+    'SKJU': 'Shinten Kugutsu Juin',
+    'SGON': 'Sonzai no Gonkasei',
+    'MIOB': 'Mizu to Abura',
+    'EXBS': 'Experimento Bem Sucedido'
+};
+
+// Dicionário de Juinjutsus — apenas ADM pode usar/dar essas vagas
+const LISTA_JUINJUTSUS = {
+    'ICHI': { nome: '𝗜𝗰𝗵𝗶 𝗻𝗼 𝗝𝘂𝗶𝗻', info: '' },
+    'NINO': { nome: '𝗡𝗶 𝗻𝗼 𝗝𝘂𝗶𝗻', info: '' },
+    'SANJ': { nome: '𝗦𝗮𝗻 𝗻𝗼 𝗝𝘂𝗶𝗻', info: '' },
+    'YONJ': { nome: '𝗬𝗼𝗻 𝗻𝗼 𝗝𝘂𝗶𝗻', info: '' },
+    'CHIJ': { nome: '𝗖𝗵𝗶 𝗻𝗼 𝗝𝘂𝗶𝗻', info: "𓏺 +𝟯𝟱 𝖼𝗁𝖺𝗄𝗋𝖺 𝗉𝗈𝗂𝗇𝗍'𝗌." },
+    'TENJ': { nome: '𝗧𝗲𝗻 𝗻𝗼 𝗝𝘂𝗶𝗻', info: "𓏺 +𝟯𝟱 𝖼𝗁𝖺𝗄𝗋𝖺 𝗉𝗈𝗂𝗇𝗍'𝗌." }
+};
+
 // Dicionário de Kinjutsus
 // OBS: troquei Shiki Fūjin de SHIK para SHIF porque SHIK já é usado por Shikkotsumyaku em Kekkei Genkai.
 const LISTA_KINJUTSUS = {
@@ -160,6 +189,8 @@ function getNomeVaga(codigo) {
     if (LISTA_KEKKEI[codigo]) return LISTA_KEKKEI[codigo].nome;
     if (LISTA_PRODIGIOS[codigo]) return LISTA_PRODIGIOS[codigo];
     if (LISTA_UNICAS[codigo]) return LISTA_UNICAS[codigo];
+    if (LISTA_TRACOS[codigo]) return LISTA_TRACOS[codigo];
+    if (LISTA_JUINJUTSUS[codigo]) return LISTA_JUINJUTSUS[codigo].nome;
     if (LISTA_KINJUTSUS[codigo]) return LISTA_KINJUTSUS[codigo].nome.toLowerCase();
     return codigo;
 }
@@ -173,19 +204,21 @@ function identificarTipo(codigo) {
         isKekkei: !!LISTA_KEKKEI[codigo],
         isProdigio: !!LISTA_PRODIGIOS[codigo],
         isUnica: !!LISTA_UNICAS[codigo],
+        isTraco: !!LISTA_TRACOS[codigo],
+        isJuinjutsu: !!LISTA_JUINJUTSUS[codigo],
         isKinjutsu: !!LISTA_KINJUTSUS[codigo]
     };
 }
 
 function codigoExiste(codigo) {
     const tipo = identificarTipo(codigo);
-    return tipo.isArte || tipo.isArma || tipo.isHabilidade || tipo.isBiju || tipo.isKekkei || tipo.isProdigio || tipo.isUnica || tipo.isKinjutsu;
+    return tipo.isArte || tipo.isArma || tipo.isHabilidade || tipo.isBiju || tipo.isKekkei || tipo.isProdigio || tipo.isUnica || tipo.isTraco || tipo.isJuinjutsu || tipo.isKinjutsu;
 }
 
 function getLimiteSlots(codigo) {
     const tipo = identificarTipo(codigo);
 
-    if (tipo.isArma || tipo.isBiju || codigo === 'PGEN' || (tipo.isUnica && codigo !== 'SSOS')) return 1;
+    if (tipo.isArma || tipo.isBiju || tipo.isTraco || tipo.isJuinjutsu || codigo === 'PGEN' || (tipo.isUnica && codigo !== 'SSOS')) return 1;
     if (tipo.isKekkei) return LISTA_KEKKEI[codigo].max;
     if (tipo.isProdigio && codigo !== 'PGEN') return 5;
     if (tipo.isKinjutsu) return LISTA_KINJUTSUS[codigo].max;
@@ -298,10 +331,26 @@ function puxarSlotsKekkei(codigo) {
     return `• \`[ CÓDIGO: ${codigo} ]\`\n٬ ${kekkei.nome}.\n𓏺 ${slots.join(', ')}.`;
 }
 
+function puxarSlotExclusivo(codigo, nomeVaga, info = '') {
+    const db = lerDB();
+    const ocupantes = db.vagas[codigo] || [];
+    const linhaInfo = info ? `\n${info}` : '';
+
+    return `▬ \`[ CÓDIGO: ${codigo} ]\` ${nomeVaga}.\n𓏺 ${ocupantes[0] ? `<@${ocupantes[0]}>` : '𝗏𝖺𝗀𝖺 𝖾𝗑𝖼𝗅𝗎𝗌𝗂𝗏𝖺'}.${linhaInfo}`;
+}
+
+function isCodigoApenasAdm(codigo) {
+    return !!LISTA_TRACOS[codigo] || !!LISTA_JUINJUTSUS[codigo];
+}
+
+function membroEhAdmin(member) {
+    return !!member?.permissions?.has(PermissionFlagsBits.Administrator);
+}
+
 function construirPainelVagas(pagina) {
     const embed = new EmbedBuilder().setColor('#2b2d31');
     const botaoVoltar = new ButtonBuilder().setCustomId('voltar').setLabel('⬅️ Anterior').setStyle(ButtonStyle.Secondary).setDisabled(pagina === 1);
-    const botaoProximo = new ButtonBuilder().setCustomId('proximo').setLabel('Próxima ➡️').setStyle(ButtonStyle.Primary).setDisabled(pagina === 10);
+    const botaoProximo = new ButtonBuilder().setCustomId('proximo').setLabel('Próxima ➡️').setStyle(ButtonStyle.Primary).setDisabled(pagina === 11);
 
     if (pagina === 1) {
         embed.setTitle('📜 Listagem — 【 ARTES EXÓTICAS 】').setDescription(Object.keys(LISTA_ARTES).map(cod => `• \`[ CÓDIGO: ${cod} ]\`\n` + puxarSlots(cod, LISTA_ARTES[cod])).join('\n\n'));
@@ -322,7 +371,9 @@ function construirPainelVagas(pagina) {
         }).join('\n\n'));
     }
     else if (pagina === 6) {
-        embed.setTitle('📜 Listagem — 【 TRAÇOS 】').setDescription(`*Atenção: Os traços abaixo são uma exceção. Sua obtenção é feita através de sorteio e não estarão disponíveis para a pretensão comum.*\n\n٬ Futatsu no Hikari.\n𓏺 **vaga exclusiva.**\n\n٬ Hi no Ishi.\n𓏺 **vaga exclusiva.**\n\n٬ Hōbi Chakura.\n𓏺 **vaga exclusiva.**\n\n٬ Kongō Fūsa.\n𓏺 **vaga exclusiva.**\n\n٬ Tairyoku Kaifuku.\n𓏺 **vaga exclusiva.**\n\n٬ Saisei Noryoku.\n𓏺 **vaga exclusiva.**\n\n٬ Saikyō no Tate.\n𓏺 **vaga exclusiva.**\n\n٬ Nanosaizu no Dokumushi.\n𓏺 **vaga exclusiva.**\n\n٬ Suna no Tate.\n𓏺 **vaga exclusiva.**\n\n٬ Nijū Kekkei.\n𓏺 **vaga exclusiva.**\n\n٬ Sanbiki no Kemono.\n𓏺 **vaga exclusiva.**\n\n٬ Shinten Kugutsu Juin.\n𓏺 **vaga exclusiva.**\n\n٬ Sonzai no Gonkasei.\n𓏺 **vaga exclusiva.**\n\n٬ Mizu to Abura.\n𓏺 **vaga exclusiva.**\n\n٬ Experimento Bem Sucedido.\n𓏺 **vaga exclusiva.**`);
+        embed
+            .setTitle('📜 Listagem — 【 TRAÇOS 】')
+            .setDescription('*Atenção: Os traços abaixo são exclusivos. Apenas ADM pode usar esses códigos ou atribuir essas vagas.*\n\n' + Object.keys(LISTA_TRACOS).map(cod => puxarSlotExclusivo(cod, LISTA_TRACOS[cod])).join('\n\n'));
     }
     else if (pagina === 7) {
         embed.setTitle('📜 Listagem — 【 PRODÍGIOS 】').setDescription(Object.keys(LISTA_PRODIGIOS).map(cod => {
@@ -339,8 +390,13 @@ function construirPainelVagas(pagina) {
     else if (pagina === 10) {
         embed.setTitle('📜 Listagem — 【 KINJUTSUS 】').setDescription(Object.keys(LISTA_KINJUTSUS).map(cod => puxarSlotsKinjutsu(cod)).join('\n\n'));
     }
+    else if (pagina === 11) {
+        embed
+            .setTitle('📜 Listagem — 【 JUINJUTSUS 】')
+            .setDescription('*Apenas ADM pode usar esses códigos ou atribuir essas vagas.*\n\n' + Object.keys(LISTA_JUINJUTSUS).map(cod => puxarSlotExclusivo(cod, LISTA_JUINJUTSUS[cod].nome, LISTA_JUINJUTSUS[cod].info)).join('\n\n'));
+    }
 
-    embed.setFooter({ text: `Página ${pagina}/10` });
+    embed.setFooter({ text: `Página ${pagina}/11` });
 
     const menu = new StringSelectMenuBuilder().setCustomId('menu_vagas_nav').setPlaceholder('Saltar para categoria...')
         .addOptions(
@@ -353,7 +409,8 @@ function construirPainelVagas(pagina) {
             { label: '7. Prodígios', value: '7' },
             { label: '8. Bijus', value: '8' },
             { label: '9. Kekkei Genkai', value: '9' },
-            { label: '10. Kinjutsus', value: '10' }
+            { label: '10. Kinjutsus', value: '10' },
+            { label: '11. Juinjutsus', value: '11' }
         );
 
     return {
@@ -418,6 +475,11 @@ client.on('messageCreate', async (message) => {
 
     if (codigoExiste(codigo)) {
         const nomeExibicao = getNomeVaga(codigo);
+
+        if (isCodigoApenasAdm(codigo) && !membroEhAdmin(message.member)) {
+            message.delete().catch(() => {});
+            return message.channel.send(`🚫 <@${message.author.id}>, essa vaga é exclusiva e só pode ser atribuída por ADM.`).then(msg => setTimeout(() => msg.delete().catch(() => {}), 5000));
+        }
         
         if (!db.vagas[codigo]) db.vagas[codigo] = [];
         if (!db.usuarios[message.author.id]) db.usuarios[message.author.id] = [];
@@ -437,7 +499,7 @@ client.on('messageCreate', async (message) => {
         if (tipo.isArte) {
             const minhasVagas = db.usuarios[message.author.id];
             const qtdExoticas = minhasVagas.filter(v => LISTA_ARTES[v]).length;
-            const possuiTraco = minhasVagas.some(v => !LISTA_ARTES[v] && !LISTA_ARMAS[v] && !LISTA_HABILIDADES[v] && !LISTA_BIJUS[v] && !LISTA_KEKKEI[v] && !LISTA_PRODIGIOS[v] && !LISTA_UNICAS[v] && !LISTA_KINJUTSUS[v]);
+            const possuiTraco = minhasVagas.some(v => LISTA_TRACOS[v]);
             if ((possuiTraco && qtdExoticas >= 2) || (!possuiTraco && qtdExoticas >= 3)) {
                 message.delete().catch(() => {});
                 return message.channel.send(`🚫 <@${message.author.id}>, limite atingido pelas regras de exóticas do RP.`).then(msg => setTimeout(() => msg.delete().catch(() => {}), 5000));
