@@ -391,7 +391,9 @@ function puxarSlotsArma(codigo) {
     const arma = LISTA_ARMAS[codigo];
     const db = lerDB();
     const ocupantes = db.vagas[codigo] || [];
-    return `٬ ${arma.nome}  ${codigoLabel(codigo)}\n${arma.info}\n𓏺 Vaga: ${ocupantes[0] ? `<@${ocupantes[0]}>` : 'disponível'}.`;
+    return `٬ ${limparNomeArma(arma.nome)}  ${codigoLabel(codigo)}
+${arma.info}
+𓏺 Vaga: ${ocupantes[0] ? `<@${ocupantes[0]}>` : 'disponível'}.`;
 }
 
 function puxarSlotsBiju(codigo) {
@@ -741,6 +743,8 @@ client.on('interactionCreate', async (interaction) => {
             .setDescription('Gerencie as vagas do servidor utilizando os novos comandos de barra:\n\n' +
                 '• `/setvaga` — Escolha o membro e o código para dar uma vaga manualmente.\n' +
                 '• `/delvaga` — Escolha o membro e o código para remover de forma forçada.\n' +
+                '• `/bloquearvaga` — Bloqueia uma vaga para pretensão comum.\n' +
+                '• `/desbloquearvaga` — Desbloqueia uma vaga bloqueada.\n' +
                 '• `/limparvagas` — Libera todas as vagas registradas no banco.\n' +
                 '• `/setarpretensao` — Programa e tranca o canal de pretensão até a data escolhida.');
 
