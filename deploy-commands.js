@@ -1,13 +1,15 @@
 require('dotenv').config();
-const { REST, Routes, SlashCommandBuilder } = require('discord.js');
+const { REST, Routes, SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 
 const commands = [
     new SlashCommandBuilder()
         .setName('tools')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setDescription('🛠️ [Staff] Exibe o painel de ferramentas da administração.'),
         
     new SlashCommandBuilder()
         .setName('setarpretensao')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setDescription('🔒 [Staff] Fecha o canal de pretensão e agenda a abertura automática.')
         .addStringOption(option => option.setName('dia').setDescription('Dia da abertura (Ex: 15/07)').setRequired(true))
         .addStringOption(option => option.setName('horario').setDescription('Horário da abertura (Ex: 18:00)').setRequired(true)),
@@ -22,28 +24,33 @@ const commands = [
         
     new SlashCommandBuilder()
         .setName('setvaga')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setDescription('✅ [Staff] Atribui manualmente uma vaga a um jogador.')
         .addUserOption(option => option.setName('membro').setDescription('Selecione o jogador').setRequired(true))
         .addStringOption(option => option.setName('codigo').setDescription('Código da vaga (Ex: KUSA, SAMEHA)').setRequired(true)),
         
     new SlashCommandBuilder()
         .setName('delvaga')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setDescription('🗑️ [Staff] Remove forçadamente a vaga de um jogador.')
         .addUserOption(option => option.setName('membro').setDescription('Selecione o jogador').setRequired(true))
         .addStringOption(option => option.setName('codigo').setDescription('Código da vaga (Ex: KUSA, SAMEHA)').setRequired(true)),
 
     new SlashCommandBuilder()
         .setName('bloquearvaga')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setDescription('🔴 [Staff] Bloqueia uma vaga para pretensão comum.')
         .addStringOption(option => option.setName('codigo').setDescription('Código da vaga que será bloqueada').setRequired(true)),
 
     new SlashCommandBuilder()
         .setName('desbloquearvaga')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setDescription('✅ [Staff] Desbloqueia uma vaga bloqueada.')
         .addStringOption(option => option.setName('codigo').setDescription('Código da vaga que será desbloqueada').setRequired(true)),
 
     new SlashCommandBuilder()
         .setName('limparvagas')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setDescription('🧹 [Staff] Libera todas as vagas registradas no banco.'),
 ].map(command => command.toJSON());
 

@@ -278,6 +278,10 @@ const LISTA_KINJUTSUS = {
 // ==========================================
 // FUNÇÕES AUXILIARES
 // ==========================================
+function limparNomeArma(nome) {
+    return nome.replace(/\s*·\s*NPC/gi, '').trim();
+}
+
 function getNomeVaga(codigo) {
     if (LISTA_ARTES[codigo]) return LISTA_ARTES[codigo];
     if (LISTA_ARMAS[codigo]) return LISTA_ARMAS[codigo].nome.split('·')[0].trim();
@@ -740,7 +744,7 @@ client.on('interactionCreate', async (interaction) => {
                 '• `/limparvagas` — Libera todas as vagas registradas no banco.\n' +
                 '• `/setarpretensao` — Programa e tranca o canal de pretensão até a data escolhida.');
 
-        return interaction.reply({ embeds: [embedTools] });
+        return interaction.reply({ embeds: [embedTools], ephemeral: true });
     }
 
     if (commandName === 'bloquearvaga') {
@@ -764,7 +768,7 @@ client.on('interactionCreate', async (interaction) => {
         salvarDB(db);
         await atualizarPaineisVagas();
 
-        return interaction.reply({ content: `🔴 Vaga **${getNomeVaga(codigo)}** bloqueada com sucesso. ADM ainda pode atribuir/usar essa vaga.` });
+        return interaction.reply({ content: `🔴 Vaga **${getNomeVaga(codigo)}** bloqueada com sucesso. ADM ainda pode atribuir/usar essa vaga.`, ephemeral: true });
     }
 
     if (commandName === 'desbloquearvaga') {
@@ -788,7 +792,7 @@ client.on('interactionCreate', async (interaction) => {
         salvarDB(db);
         await atualizarPaineisVagas();
 
-        return interaction.reply({ content: `✅ Vaga **${getNomeVaga(codigo)}** desbloqueada com sucesso.` });
+        return interaction.reply({ content: `✅ Vaga **${getNomeVaga(codigo)}** desbloqueada com sucesso.`, ephemeral: true });
     }
 
     if (commandName === 'limparvagas') {
@@ -802,7 +806,7 @@ client.on('interactionCreate', async (interaction) => {
         salvarDB(db);
         await atualizarPaineisVagas();
 
-        return interaction.reply({ content: '✅ Todas as vagas foram liberadas com sucesso.' });
+        return interaction.reply({ content: '✅ Todas as vagas foram liberadas com sucesso.', ephemeral: true });
     }
 
     if (commandName === 'setarpretensao') {
@@ -838,7 +842,7 @@ client.on('interactionCreate', async (interaction) => {
             return interaction.reply({ content: '❌ A data e o horário programados precisam estar no futuro!', ephemeral: true });
         }
 
-        await interaction.deferReply();
+        await interaction.deferReply({ ephemeral: true });
 
         try {
             const canal = await interaction.guild.channels.fetch(CANAL_PRETENSAO_ID);
@@ -894,7 +898,7 @@ client.on('interactionCreate', async (interaction) => {
         await atualizarPaineisVagas();
 
         const nomeExibicao = getNomeVaga(codigo);
-        return interaction.reply({ content: `✅ Vaga **${nomeExibicao}** atribuída com sucesso para <@${miembro.id}>!` });
+        return interaction.reply({ content: `✅ Vaga **${nomeExibicao}** atribuída com sucesso para <@${miembro.id}>!`, ephemeral: true });
     }
 
     if (commandName === 'delvaga') {
@@ -916,7 +920,7 @@ client.on('interactionCreate', async (interaction) => {
         await atualizarPaineisVagas();
 
         const nomeExibicao = getNomeVaga(codigo);
-        return interaction.reply({ content: `🗑️ Vaga **${nomeExibicao}** removida com sucesso de <@${miembro.id}>.` });
+        return interaction.reply({ content: `🗑️ Vaga **${nomeExibicao}** removida com sucesso de <@${miembro.id}>.`, ephemeral: true });
     }
 
     if (commandName === 'minhasvagas') {
