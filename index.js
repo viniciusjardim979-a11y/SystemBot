@@ -12,6 +12,20 @@ const {
 } = require('discord.js');
 const fs = require('fs');
 
+// --- CÓDIGO PARA MANTER O BOT ATIVO NO RENDER ---
+const express = require('express');
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+    res.send('Bot está online e ativo!');
+});
+
+app.listen(port, () => {
+    console.log(`Servidor de ping rodando na porta ${port}`);
+});
+// ------------------------------------------------
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -37,7 +51,6 @@ const LISTA_ARTES = {
 
 // Dicionário de Armas Exóticas
 const LISTA_ARMAS = {
-    // EXÓTICAS GERAIS
     'SENSU': { nome: 'Kyōdai Sensu · Ilimitado', info: '· Restrição em **Sunagakure**.\n· Alcançar grau **2** in **Ninjutsu**.\n· Obtenção de variação **equilibrado** ou **arma única** in **Bukijutsu**.\n↳ **maestria fūton** contorna essa necessidade.' },
     'SHOKEN': { nome: 'Fujaku Hishō Shōken · NPC', info: '· Grau **2** em **Ninjutsu** (**maestria fūton** contorna).' },
     'HINOKEN': { nome: 'Hinōken · NPC', info: '· Grau **2** em **Ninjutsu** (**maestria katon** contorna).\n▬ Limita-se ao feixe apresentado · **gasto 06 cp**.' },
@@ -55,8 +68,6 @@ const LISTA_ARMAS = {
     'KUSATS': { nome: 'Kusanagi no Tsurugi · Vaga Exclusiva', info: '· Desenvolvimento com **Hakuja** e **Shirohebi**.' },
     'KUSANA': { nome: 'Kusanagi · Vaga Exclusiva', info: '· Desenvolvimento com **Shirohebi**.' },
     'KUROSA': { nome: 'Kurosawa · Vaga Exclusiva', info: '· Sair vitorioso sobre o general da **nação do ferro**.' },
-
-    // ESPADAS DA NÉVOA
     'KUBIKI': { nome: 'Kubikiribōchō · NPC', info: '· Sem requisitos iniciais.' },
     'SAMEHA': { nome: 'Samehada · NPC', info: '· Absorção de **30 cp**/rodada (**hōbi chakura**) | **15 cp** (**sem**).\n↳ Absorção **50 cp**/rodada de alvos.\n▬ **transformação de tubarão** tem o dobro da absorção.' },
     'NUIBARI': { nome: 'Nuibari · NPC', info: '· Sem requisitos iniciais.' },
@@ -64,8 +75,6 @@ const LISTA_ARMAS = {
     'SHIBUKI': { nome: 'Shibuki · NPC', info: '· Sem requisitos iniciais.' },
     'KIBA': { nome: 'Kiba · NPC', info: '· Grau **2** em **Ninjutsu** (**maestria raiton** contorna).' },
     'HIRAME': { nome: 'Hiramekararei · NPC', info: '· Grau **2** em **Ninjutsu**.\n↳ **lâmina cega**, moldada através do chakra.' },
-
-    // RIKUDOU
     'BASHO': { nome: 'Bashōsen · NPC', info: '▬ Gasta **50 cp** todas as técnicas.' },
     'BENI': { nome: 'Benihisago · NPC', info: '▬ Gasta **50 cp** todas as técnicas.' },
     'BOHAKU': { nome: 'Bohaku no Jōhei · NPC', info: '▬ Gasta **50 cp** todas as técnicas.' },
@@ -196,7 +205,6 @@ function puxarSlotsKinjutsu(codigo) {
 client.once('ready', (clientReady) => {
     console.log(` O bot ${clientReady.user.tag} está online com comandos de barra!`);
 
-    // Loop de verificação para abertura programada (roda a cada 30 segundos)
     setInterval(async () => {
         const db = lerDB();
         if (db.agendaPretensao && db.agendaPretensao.ativa) {
@@ -292,7 +300,6 @@ client.on('interactionCreate', async (interaction) => {
 
     const { commandName } = interaction;
 
-    // 1. /TOOLS
     if (commandName === 'tools') {
         if (!interaction.memberPermissions || !interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
             return interaction.reply({ content: '❌ Você não tem permissão de Administrador para usar este comando.', ephemeral: true });
@@ -309,7 +316,6 @@ client.on('interactionCreate', async (interaction) => {
         return interaction.reply({ embeds: [embedTools] });
     }
 
-    // 2. /SETARPRETENSAO
     if (commandName === 'setarpretensao') {
         if (!interaction.memberPermissions || !interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
             return interaction.reply({ content: '❌ Você não tem permissão de Administrador para usar este comando.', ephemeral: true });
@@ -367,7 +373,6 @@ client.on('interactionCreate', async (interaction) => {
         return interaction.editReply({ content: `🔒 O canal de pretensão foi **fechado** com sucesso! Ele abrirá de forma automática no dia **${diaInput}** às **${horarioInput}** (Sincronizado com o Horário de Brasília).` });
     }
 
-    // 3. /SETVAGA
     if (commandName === 'setvaga') {
         if (!interaction.memberPermissions || !interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
             return interaction.reply({ content: '❌ Permissão negada.', ephemeral: true });
@@ -400,7 +405,6 @@ client.on('interactionCreate', async (interaction) => {
         return interaction.reply({ content: `✅ Vaga **${nomeExibicao}** atribuída com sucesso para <@${miembro.id}>!` });
     }
 
-    // 4. /DELVAGA
     if (commandName === 'delvaga') {
         if (!interaction.memberPermissions || !interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
             return interaction.reply({ content: '❌ Permissão negada.', ephemeral: true });
@@ -422,7 +426,6 @@ client.on('interactionCreate', async (interaction) => {
         return interaction.reply({ content: `🗑️ Vaga **${nomeExibicao}** removida com sucesso de <@${miembro.id}>.` });
     }
 
-    // 5. /MINHASVAGAS
     if (commandName === 'minhasvagas') {
         const db = lerDB();
         const minhasVagas = db.usuarios[interaction.user.id] || [];
@@ -457,7 +460,6 @@ client.on('interactionCreate', async (interaction) => {
         return;
     }
 
-    // 6. /VAGAS
     if (commandName === 'vagas') {
         let paginaAtual = 1;
         
