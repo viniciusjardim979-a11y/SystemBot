@@ -16,11 +16,11 @@ const commands = [
         
     new SlashCommandBuilder()
         .setName('vagas')
-        .setDescription('📜 Exibe o painel paginado de vagas do RP.'),
+        .setDescription('📜 Exibe o painel de vagas do RPG.'),
         
     new SlashCommandBuilder()
         .setName('minhasvagas')
-        .setDescription('📂 Veja e gerencie as suas vagas atuais no RP.'),
+        .setDescription('📂 Veja e gerencie as suas vagas ocupadas.'),
         
     new SlashCommandBuilder()
         .setName('setvaga')

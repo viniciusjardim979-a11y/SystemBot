@@ -978,7 +978,7 @@ client.on('interactionCreate', async (interaction) => {
 
         const embed = new EmbedBuilder()
             .setColor('#2b2d31')
-            .setTitle('📂 Sua Listagem no RP')
+            .setTitle('📂 Suas vagas ocupadas')
             .setDescription(minhasVagas.map(v => `• **${getNomeVaga(v)}** \`[ ${v} ]\``).join('\n\n') + '\n\n*Abidique de uma vaga usando o seletor abaixo:*');
 
         const seletor = new StringSelectMenuBuilder().setCustomId('abdicar_menu').setPlaceholder('Escolha uma vaga para abrir mão...');
