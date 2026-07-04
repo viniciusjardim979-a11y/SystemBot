@@ -42,6 +42,10 @@ const CANAL_PRETENSAO_ID = '1515842705958113340';
 // Guarda os painéis /vagas que estão abertos para atualizar quando alguém pega/remove vaga.
 const paineisVagasAtivos = new Map();
 
+// Cooldown da pretensão: impede spam no canal de códigos.
+const COOLDOWN_PRETENSAO_MS = 3000;
+const cooldownPretensao = new Map();
+
 // Dicionário de Artes Exóticas
 const LISTA_ARTES = {
     'KUSA': 'Kusagakureryū', 'SAIR': 'Sairento Kiringu', 'IAID': 'Iaidō',
@@ -677,6 +681,25 @@ client.on('messageCreate', async (message) => {
 
     if (codigos.length === 0) return;
 
+    if (!membroEhAdmin(message.member)) {
+        const agoraCooldown = Date.now();
+        const ultimoUso = cooldownPretensao.get(message.author.id) || 0;
+        const tempoRestante = COOLDOWN_PRETENSAO_MS - (agoraCooldown - ultimoUso);
+
+        if (tempoRestante > 0) {
+            message.delete().catch(() => {});
+            return message.channel.send(`⏳ <@${message.author.id}>, aguarde alguns segundos antes de tentar novamente.`)
+                .then(msg => setTimeout(() => msg.delete().catch(() => {}), 3000));
+        }
+
+        cooldownPretensao.set(message.author.id, agoraCooldown);
+        setTimeout(() => {
+            if (cooldownPretensao.get(message.author.id) === agoraCooldown) {
+                cooldownPretensao.delete(message.author.id);
+            }
+        }, COOLDOWN_PRETENSAO_MS);
+    }
+
     if (codigos.length > 3) {
         message.delete().catch(() => {});
         return message.channel.send(`🚫 <@${message.author.id}>, você só pode tentar pegar até **3 vagas** por mensagem.`)
@@ -978,7 +1001,7 @@ client.on('interactionCreate', async (interaction) => {
 
         const embed = new EmbedBuilder()
             .setColor('#2b2d31')
-            .setTitle('📂 Suas vagas ocupadas')
+            .setTitle('📂 Sua Listagem no RP')
             .setDescription(minhasVagas.map(v => `• **${getNomeVaga(v)}** \`[ ${v} ]\``).join('\n\n') + '\n\n*Abidique de uma vaga usando o seletor abaixo:*');
 
         const seletor = new StringSelectMenuBuilder().setCustomId('abdicar_menu').setPlaceholder('Escolha uma vaga para abrir mão...');
