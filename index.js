@@ -803,8 +803,8 @@ client.on('interactionCreate', async (interaction) => {
 
         const embedTools = new EmbedBuilder()
             .setColor('#2b2d31')
-            .setTitle('🛠️ Painel de Comando da Staff')
-            .setDescription('Gerencie as vagas do servidor utilizando os novos comandos de barra:\n\n' +
+            .setTitle('🛠️ Painel de Comandos Administrativo')
+            .setDescription('Gerencie as vagas do servidor utilizando os comandos abaixo:\n\n' +
                 '• `/setvaga` — Escolha o membro e o código para dar uma vaga manualmente.\n' +
                 '• `/delvaga` — Escolha o membro e o código para remover de forma forçada.\n' +
                 '• `/bloquearvaga` — Bloqueia uma vaga para pretensão comum.\n' +
