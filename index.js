@@ -262,6 +262,18 @@ const LISTA_MODO_SABIO = {
     }
 };
 
+// Dicionário de Mangekyou Sharingan — apenas ADM pode usar/dar essas vagas
+const LISTA_MANGEKYOU = {
+    'OBMS': { nome: 'Obito Mangekyou Sharingan', info: '' },
+    'MAMS': { nome: 'Madara Mangekyou Sharingan', info: '' },
+    'SRMS': { nome: 'Sarada Mangekyou Sharingan', info: '' },
+    'SKMS': { nome: 'Sasuke Mangekyou Sharingan', info: '' },
+    'SHMS': { nome: 'Shin Mangekyou Sharingan', info: '' },
+    'ITMS': { nome: 'Itachi Mangekyou Sharingan', info: '' },
+    'SSMS': { nome: 'Shisui Mangekyou Sharingan', info: '' },
+    'INMS': { nome: 'Indra Mangekyou Sharingan', info: '' }
+};
+
 // Dicionário de Kinjutsus
 // OBS: troquei Shiki Fūjin de SHIK para SHIF porque SHIK já é usado por Shikkotsumyaku em Kekkei Genkai.
 const LISTA_KINJUTSUS = {
@@ -299,6 +311,7 @@ function getNomeVaga(codigo) {
     if (LISTA_CARACTERISTICAS[codigo]) return LISTA_CARACTERISTICAS[codigo].nome;
     if (LISTA_INVOCACOES[codigo]) return LISTA_INVOCACOES[codigo].nome;
     if (LISTA_MODO_SABIO[codigo]) return LISTA_MODO_SABIO[codigo].nome;
+    if (LISTA_MANGEKYOU[codigo]) return LISTA_MANGEKYOU[codigo].nome;
     if (LISTA_KINJUTSUS[codigo]) return LISTA_KINJUTSUS[codigo].nome.toLowerCase();
     return codigo;
 }
@@ -317,13 +330,14 @@ function identificarTipo(codigo) {
         isCaracteristica: !!LISTA_CARACTERISTICAS[codigo],
         isInvocacao: !!LISTA_INVOCACOES[codigo],
         isModoSabio: !!LISTA_MODO_SABIO[codigo],
+        isMangekyou: !!LISTA_MANGEKYOU[codigo],
         isKinjutsu: !!LISTA_KINJUTSUS[codigo]
     };
 }
 
 function codigoExiste(codigo) {
     const tipo = identificarTipo(codigo);
-    return tipo.isArte || tipo.isArma || tipo.isHabilidade || tipo.isBiju || tipo.isKekkei || tipo.isProdigio || tipo.isUnica || tipo.isTraco || tipo.isJuinjutsu || tipo.isCaracteristica || tipo.isInvocacao || tipo.isModoSabio || tipo.isKinjutsu;
+    return tipo.isArte || tipo.isArma || tipo.isHabilidade || tipo.isBiju || tipo.isKekkei || tipo.isProdigio || tipo.isUnica || tipo.isTraco || tipo.isJuinjutsu || tipo.isCaracteristica || tipo.isInvocacao || tipo.isModoSabio || tipo.isMangekyou || tipo.isKinjutsu;
 }
 
 function getLimiteSlots(codigo) {
@@ -335,6 +349,7 @@ function getLimiteSlots(codigo) {
     if (tipo.isKinjutsu) return LISTA_KINJUTSUS[codigo].max;
     if (tipo.isInvocacao) return LISTA_INVOCACOES[codigo].max;
     if (tipo.isModoSabio) return 1;
+    if (tipo.isMangekyou) return 1;
     return 3;
 }
 
@@ -486,7 +501,7 @@ function puxarSlotExclusivo(codigo, nomeVaga, info = '') {
 }
 
 function isCodigoApenasAdm(codigo) {
-    return !!LISTA_TRACOS[codigo] || !!LISTA_JUINJUTSUS[codigo] || !!LISTA_MODO_SABIO[codigo];
+    return !!LISTA_TRACOS[codigo] || !!LISTA_JUINJUTSUS[codigo] || !!LISTA_MODO_SABIO[codigo] || !!LISTA_MANGEKYOU[codigo];
 }
 
 function membroEhAdmin(member) {
@@ -530,10 +545,19 @@ function puxarSlotModoSabio(codigo) {
     return `٬ ${codigoLabel(codigo)} ${modo.nome}.\n${modo.info}\n٬ ${ocupantes[0] ? `<@${ocupantes[0]}>` : '𝘃𝗮𝗴𝗮 𝗲𝘅𝗰𝗹𝘂𝘀𝗶𝘃𝗮'}.`;
 }
 
+function puxarSlotMangekyou(codigo) {
+    const mangekyou = LISTA_MANGEKYOU[codigo];
+    const db = lerDB();
+    const ocupantes = db.vagas[codigo] || [];
+
+    return `٬ ${codigoLabel(codigo)} ${mangekyou.nome}.
+𓏺 ${ocupantes[0] ? `<@${ocupantes[0]}>` : 'Vaga Exclusiva'}.`;
+}
+
 function construirPainelVagas(pagina) {
     const embed = new EmbedBuilder().setColor('#2b2d31');
     const botaoVoltar = new ButtonBuilder().setCustomId('voltar').setLabel('⬅️ Anterior').setStyle(ButtonStyle.Secondary).setDisabled(pagina === 1);
-    const botaoProximo = new ButtonBuilder().setCustomId('proximo').setLabel('Próxima ➡️').setStyle(ButtonStyle.Primary).setDisabled(pagina === 14);
+    const botaoProximo = new ButtonBuilder().setCustomId('proximo').setLabel('Próxima ➡️').setStyle(ButtonStyle.Primary).setDisabled(pagina === 15);
 
     if (pagina === 1) {
         embed.setTitle('📜 Listagem — 【 ARTES EXÓTICAS 】').setDescription(Object.keys(LISTA_ARTES).map(cod => `• ${codigoLabel(cod)}\n` + puxarSlots(cod, LISTA_ARTES[cod])).join('\n\n'));
@@ -597,7 +621,13 @@ function construirPainelVagas(pagina) {
             .setDescription('*Inviável a obtenção destas vagas através da pretensão.*\n\n' + Object.keys(LISTA_MODO_SABIO).map(cod => puxarSlotModoSabio(cod)).join('\n\n'));
     }
 
-    embed.setFooter({ text: `Página ${pagina}/14` });
+    else if (pagina === 15) {
+        embed
+            .setTitle('📜 Listagem — 【 MANGEKYOU SHARINGAN 】')
+            .setDescription('*Inviável a obtenção destas vagas através da pretensão.*\n\n' + Object.keys(LISTA_MANGEKYOU).map(cod => puxarSlotMangekyou(cod)).join('\n\n'));
+    }
+
+    embed.setFooter({ text: `Página ${pagina}/15` });
 
     const menu = new StringSelectMenuBuilder().setCustomId('menu_vagas_nav').setPlaceholder('Saltar para categoria...')
         .addOptions(
@@ -614,7 +644,8 @@ function construirPainelVagas(pagina) {
             { label: '11. Juinjutsus', value: '11' },
             { label: '12. Características', value: '12' },
             { label: '13. Invocações', value: '13' },
-            { label: '14. Modo Sábio', value: '14' }
+            { label: '14. Modo Sábio', value: '14' },
+            { label: '15. Mangekyou Sharingan', value: '15' }
         );
 
     return {
@@ -803,8 +834,8 @@ client.on('interactionCreate', async (interaction) => {
 
         const embedTools = new EmbedBuilder()
             .setColor('#2b2d31')
-            .setTitle('🛠️ Painel de Comandos Administrativo')
-            .setDescription('Gerencie as vagas do servidor utilizando os comandos abaixo:\n\n' +
+            .setTitle('🛠️ Painel de Comando da Staff')
+            .setDescription('Gerencie as vagas do servidor utilizando os novos comandos de barra:\n\n' +
                 '• `/setvaga` — Escolha o membro e o código para dar uma vaga manualmente.\n' +
                 '• `/delvaga` — Escolha o membro e o código para remover de forma forçada.\n' +
                 '• `/bloquearvaga` — Bloqueia uma vaga para pretensão comum.\n' +
